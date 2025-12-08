@@ -1,30 +1,5 @@
-import localFont from "next/font/local";
 import "./globals.css";
 
-/* ------------------------------
-   Fonts
--------------------------------- */
-const oxProto = localFont({
-  src: [
-    {
-      path: "../fonts/0xProto/0xProtoNerdFont-Regular.ttf",
-      weight: "400",
-      style: "normal",
-    },
-    {
-      path: "../fonts/0xProto/0xProtoNerdFont-Italic.ttf",
-      weight: "400",
-      style: "italic",
-    },
-    {
-      path: "../fonts/0xProto/0xProtoNerdFont-Bold.ttf",
-      weight: "700",
-      style: "normal",
-    },
-  ],
-  variable: "--font-oxproto",
-  display: "swap",
-});
 /* ------------------------------
    Viewport (REQUIRED SEPARATE EXPORT)
 -------------------------------- */
@@ -38,6 +13,7 @@ export const viewport = {
     { media: "(prefers-color-scheme: dark)", color: "#0a0a0a" },
   ],
 };
+
 /* ------------------------------
    Metadata
 -------------------------------- */
@@ -145,7 +121,7 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className={oxProto.variable}>
+    <html lang="en">
       <head>
         {/* Windows Tiles */}
         <meta name="msapplication-TileColor" content="#000000" />

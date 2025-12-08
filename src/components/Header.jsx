@@ -33,16 +33,16 @@ export default function Header() {
   const navItems = [
     { icon: <Home className="w-5 h-5" />, label: "Home", href: "/#home" },
     { icon: <Info className="w-5 h-5" />, label: "About", href: "/#about" },
-    {
-      icon: <BarChart3 className="w-5 h-5" />,
-      label: "Features",
-      href: "/#features",
-    },
-    {
-      icon: <Users className="w-5 h-5" />,
-      label: "How It Works",
-      href: "/#how-it-works",
-    },
+    // {
+    //   icon: <BarChart3 className="w-5 h-5" />,
+    //   label: "Features",
+    //   href: "/#features",
+    // },
+    // {
+    //   icon: <Users className="w-5 h-5" />,
+    //   label: "How It Works",
+    //   href: "/#how-it-works",
+    // },
     { icon: <Mail className="w-5 h-5" />, label: "Contact", href: "/contact" },
   ];
 
@@ -61,7 +61,7 @@ export default function Header() {
             {/* Left: Logo */}
             <a href="/#home" className="flex items-center gap-3 group z-10">
               <div className="flex items-center justify-center bg-gradient-to-br from-blue-500 to-blue-700 rounded-xl w-10 h-10 sm:w-12 sm:h-12 shadow-lg shadow-blue-500/50 group-hover:shadow-blue-500/70 group-hover:scale-105 transition-all">
-                <img src="/favicon.ico" alt="Enough Logo" />
+                <img src="/trump_logo.jpeg" alt="Enough Logo" />
               </div>
               <div>
                 <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight">

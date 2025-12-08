@@ -85,7 +85,7 @@ export default function ContactPage() {
                 ready to help.
               </p>
               <p className="mt-2 text-blue-400 font-semibold">
-                support@enoughpolls.com
+                support@enoughcorruption.org
               </p>
             </div>
             <div>
@@ -97,7 +97,7 @@ export default function ContactPage() {
                 integrations?
               </p>
               <p className="mt-2 text-blue-400 font-semibold">
-                partners@enoughpolls.com
+                partners@enoughcorruption.org
               </p>
             </div>
             <div>
@@ -108,7 +108,7 @@ export default function ContactPage() {
                 For sponsorships, media, enterprise solutions, and more.
               </p>
               <p className="mt-2 text-blue-400 font-semibold">
-                business@enoughpolls.com
+                business@enoughcorruption.org
               </p>
             </div>
             <div className="pt-4">

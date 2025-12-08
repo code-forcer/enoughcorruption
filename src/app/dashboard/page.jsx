@@ -46,8 +46,60 @@ const UnifiedDashboard = () => {
   const [resultsData, setResultsData] = useState(null);
   const [newQuestionText, setNewQuestionText] = useState("");
   const voteData = dashboardData?.voteData || {};
-
   const [isClient, setIsClient] = useState(false);
+
+  //polls change
+  // ========= STATE FOR NEXT / PREVIOUS POLL =========
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [animating, setAnimating] = useState(false);
+
+  // ========= ANIMATION CONTROLLER =========
+  const animate = (callback) => {
+    setAnimating(true);
+    setTimeout(() => {
+      callback();
+      setTimeout(() => setAnimating(false), 200);
+    }, 200);
+  };
+
+  // ========= NEXT POLL =========
+  const nextPoll = () => {
+    if (!allQuestions || allQuestions.length === 0) return;
+
+    animate(() => {
+      const nextIndex = (currentIndex + 1) % allQuestions.length;
+      setCurrentIndex(nextIndex);
+      setActiveQuestion(allQuestions[nextIndex]);
+    });
+  };
+
+  // ========= PREVIOUS POLL =========
+  const prevPoll = () => {
+    if (!allQuestions || allQuestions.length === 0) return;
+
+    animate(() => {
+      const nextIndex =
+        currentIndex === 0 ? allQuestions.length - 1 : currentIndex - 1;
+      setCurrentIndex(nextIndex);
+      setActiveQuestion(allQuestions[nextIndex]);
+    });
+  };
+
+  // ========= OPTIONAL AUTO ROTATE (DISABLED BY DEFAULT) =========
+  // Uncomment to enable auto-rotate every 20 seconds
+  /*
+  useEffect(() => {
+    if (!allQuestions.length) return;
+
+    const auto = setInterval(() => nextPoll(), 20000);
+    return () => clearInterval(auto);
+  }, [allQuestions]);
+  */
+
+  // Fade animation classes
+  const animationClass = animating
+    ? "opacity-0 transition-opacity duration-200"
+    : "opacity-100 transition-opacity duration-200";
 
   useEffect(() => {
     setIsClient(true);
@@ -284,11 +336,10 @@ const UnifiedDashboard = () => {
 
     let csv = "Rank,Term,Vote Count,% of Selections,% of Voters\n";
     results.forEach((item, i) => {
-      csv += `${i + 1},"${item.term}",${
-        item.count
-      },${item.percentageOfSelections.toFixed(
-        1
-      )}%,${item.percentageOfVoters.toFixed(1)}%\n`;
+      csv += `${i + 1},"${item.term}",${item.count
+        },${item.percentageOfSelections.toFixed(
+          1
+        )}%,${item.percentageOfVoters.toFixed(1)}%\n`;
     });
 
     csv += `\n"Total Voters",${totalVoters}\n`;
@@ -433,7 +484,7 @@ const UnifiedDashboard = () => {
 
               <div className="flex items-center gap-3">
                 <div className="flex items-center justify-center bg-gradient-to-br from-blue-500 to-blue-700 rounded-xl w-10 h-10 sm:w-12 sm:h-12 shadow-lg">
-                  <img src="/favicon.ico" alt="logo" />
+                  <img src="/trump_logo.jpeg" alt="Enough Logo" />
                 </div>
                 <div className="hidden sm:block">
                   <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight">
@@ -449,11 +500,10 @@ const UnifiedDashboard = () => {
                 <button
                   key={item.section}
                   onClick={() => setActiveSection(item.section)}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold text-sm transition-all ${
-                    activeSection === item.section
-                      ? "bg-blue-600 text-white shadow-lg"
-                      : "text-gray-300 hover:text-white hover:bg-white/10"
-                  }`}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold text-sm transition-all ${activeSection === item.section
+                    ? "bg-blue-600 text-white shadow-lg"
+                    : "text-gray-300 hover:text-white hover:bg-white/10"
+                    }`}
                 >
                   <item.icon className="w-5 h-5" />
                   <span>{item.label}</span>
@@ -546,11 +596,10 @@ const UnifiedDashboard = () => {
                         setActiveSection(item.section);
                         setIsSidebarOpen(false);
                       }}
-                      className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg font-semibold text-sm transition-all ${
-                        activeSection === item.section
-                          ? "bg-blue-600 text-white"
-                          : "text-gray-300 hover:text-white hover:bg-white/10"
-                      }`}
+                      className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg font-semibold text-sm transition-all ${activeSection === item.section
+                        ? "bg-blue-600 text-white"
+                        : "text-gray-300 hover:text-white hover:bg-white/10"
+                        }`}
                     >
                       <item.icon className="w-5 h-5" />
                       <span>{item.label}</span>
@@ -639,13 +688,21 @@ const UnifiedDashboard = () => {
                   </p>
                 </div>
               </div>
-
               {activeQuestion && (
                 <div className="bg-gradient-to-br from-blue-500/10 to-purple-500/10 border border-blue-500/30 rounded-xl p-6">
-                  <h3 className="text-xl font-bold text-white mb-2">
-                    Active Question
-                  </h3>
+                  <h3 className="text-xl font-bold text-white mb-2">Active Question</h3>
                   <p className="text-gray-300 text-lg">{activeQuestion.text}</p>
+
+                  <span className="text-gray-400 text-sm">
+                    {activeQuestion.pubDate
+                      ? new Date(activeQuestion.pubDate).toLocaleDateString("en-US", {
+                        month: "short",
+                        day: "numeric",
+                        year: "numeric",
+                      })
+                      : "No date"}
+                  </span>
+
                   <div className="mt-4 flex gap-3">
                     <button
                       onClick={() => setActiveSection("vote")}
@@ -653,6 +710,7 @@ const UnifiedDashboard = () => {
                     >
                       Cast Your Vote
                     </button>
+
                     <button
                       onClick={() => setActiveSection("results")}
                       className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-semibold transition"
@@ -662,93 +720,117 @@ const UnifiedDashboard = () => {
                   </div>
                 </div>
               )}
+
             </div>
           )}
-
-          {/* VOTE SECTION */}
+          {/* Vote section */}
           {activeSection === "vote" && (
             <div className="max-w-5xl mx-auto">
               <div className="bg-white/5 border border-white/10 rounded-xl p-8">
+
+                {/* ===================== HEADER ===================== */}
                 <div className="mb-6">
-                  <h2 className="text-3xl font-bold text-white mb-2">
-                    {activeQuestion
-                      ? activeQuestion.text
-                      : "No active question"}
-                  </h2>
-                  <p className="text-gray-400">
-                    Select ALL terms that apply (multiple selections allowed)
-                  </p>
-                  <div className="mt-4 flex items-center justify-between">
-                    <span className="text-sm text-gray-400">
-                      Selected:{" "}
-                      <span className="text-white font-bold">
-                        {selectedTerms.size}
-                      </span>
-                    </span>
-                    {hasVoted && (
-                      <span className="bg-green-500/20 text-green-400 text-sm px-3 py-1 rounded-full">
-                        ✓ You have already voted
-                      </span>
-                    )}
+                  {/* Title + Date */}
+                  <div className={animationClass}>
+                    <h2 className="text-3xl font-bold text-white mb-2">
+                      {activeQuestion ? activeQuestion.text : "No active question"}
+                      &nbsp; - &nbsp;<span className="text-gray-400 text-sm">
+                          {activeQuestion?.pubDate
+                            ? new Date(activeQuestion.pubDate).toLocaleDateString(
+                              "en-US",
+                              {
+                                month: "short",
+                                day: "numeric",
+                                year: "numeric",
+                              }
+                            )
+                            : "No date"}
+                        </span>
+                    </h2>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        
+                        <p className="text-gray-400 mt-2">
+                          Select ALL terms that apply (multiple selections allowed)
+                        </p>
+                      </div>
+
+                      {/* Navigation Buttons */}
+                      <div className="flex gap-3">
+                        <button
+                          onClick={prevPoll}
+                          className="bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-lg text-sm font-semibold transition border border-white/20"
+                        >
+                          ← Previous
+                        </button>
+
+                        <button
+                          onClick={nextPoll}
+                          className="bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-lg text-sm font-semibold transition border border-white/20"
+                        >
+                          Next →
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
+                {/* ===================== NO ACTIVE QUESTION ===================== */}
                 {!activeQuestion ? (
                   <div className="text-center py-12">
                     <AlertCircle className="w-16 h-16 text-gray-500 mx-auto mb-4" />
                     <p className="text-gray-400 text-lg">
                       No active question available
                     </p>
-                    <button
-                      onClick={() => setActiveSection("admin")}
-                      className="mt-4 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition"
-                    >
-                      Go to Admin Panel
-                    </button>
                   </div>
                 ) : (
                   <>
+                    {/* ===================== INSTRUCTIONS ===================== */}
                     {!hasVoted && (
-                      <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4 mb-6">
-                        <p className="text-sm text-blue-300">
-                          <strong>📌 Instructions:</strong> Click on as many
-                          terms as you feel apply. One vote per IP address.
+                      <div className="bg-[#0ea4ff]/10 border border-[#0ea4ff]/30 rounded-lg p-4 mb-6">
+                        <p className="text-sm text-[#0ea4ff]">
+                          <strong>📌 Instructions:</strong> Click on as many terms
+                          as you feel apply. One vote per IP address.
                         </p>
                       </div>
                     )}
 
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 mb-6">
-                      {FIXED_TERMS.map((term) => (
-                        <button
-                          key={term}
-                          onClick={() => toggleTerm(term)}
-                          disabled={hasVoted || loading}
-                          className={`p-4 rounded-lg font-semibold text-sm transition-all ${
-                            selectedTerms.has(term)
-                              ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white scale-105 shadow-lg"
-                              : hasVoted || loading
-                              ? "bg-white/5 text-gray-500 cursor-not-allowed"
-                              : "bg-white/10 text-gray-300 hover:bg-white/20 hover:text-white"
-                          }`}
-                        >
-                          {term}
-                        </button>
-                      ))}
+                    {/* ===================== OPTIONS ===================== */}
+                    <div className={animationClass}>
+                      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 mb-6">
+                        {FIXED_TERMS.map((term) => (
+                          <button
+                            key={term}
+                            onClick={() => toggleTerm(term)}
+                            disabled={hasVoted || loading}
+                            className={`p-4 rounded-lg font-semibold text-sm transition-all ${selectedTerms.has(term)
+                                ? "bg-[#0ea4ff] text-white scale-105 shadow-lg shadow-[#0ea4ff]/50"
+                                : hasVoted || loading
+                                  ? "bg-white/5 text-gray-500 cursor-not-allowed"
+                                  : "bg-white/10 text-gray-300 hover:bg-white/20 hover:text-white border border-white/10"
+                              }`}
+                          >
+                            {term}
+                          </button>
+                        ))}
+                      </div>
                     </div>
 
+                    {/* ===================== BOTTOM BUTTONS ===================== */}
                     {!hasVoted && (
                       <div className="flex items-center justify-between pt-6 border-t border-white/10">
                         <button
                           onClick={() => setSelectedTerms(new Set())}
                           disabled={loading}
-                          className="bg-gray-600 hover:bg-gray-700 text-white px-6 py-3 rounded-lg font-semibold transition disabled:opacity-50"
+                          className="bg-red-400 text-white px-6 py-3 rounded-lg font-semibold transition  border border-white/20"
                         >
                           Clear All
                         </button>
+
                         <button
                           onClick={submitVote}
                           disabled={loading || selectedTerms.size === 0}
-                          className="bg-gradient-to-r from-blue-600 to-purple-600 hover:shadow-lg text-white px-8 py-3 rounded-lg font-bold text-lg transition disabled:opacity-50"
+                          className="hover:bg-green-700 bg-[#0c8ed9] text-white px-8 py-3 rounded-lg font-bold text-lg transition"
                         >
                           {loading ? "Submitting..." : "Submit Vote →"}
                         </button>
@@ -776,81 +858,75 @@ const UnifiedDashboard = () => {
                 </div>
 
                 {/* Export & Share Buttons */}
-                {isClient && resultsData && (
-                  <div className="flex flex-wrap gap-3">
-                    <button
-                      onClick={exportToCSV}
-                      className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition font-semibold shadow-lg"
-                    >
-                      <Download size={18} />
-                      CSV
-                    </button>
+                {/* Export & Share Buttons */}
+{isClient && resultsData && (
+  <div className="flex flex-wrap gap-3">
+    <button
+      onClick={exportToCSV}
+      className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition font-semibold shadow-lg"
+    >
+      <Download size={18} />
+      <span className="hidden sm:inline">CSV</span>
+    </button>
+    
+    <button
+      onClick={exportToPDF}
+      className="flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition font-semibold shadow-lg"
+    >
+      <Download size={18} />
+      <span className="hidden sm:inline">PDF</span>
+    </button>
+    
+    <button
+      onClick={downloadAsImage}
+      className="flex items-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition font-semibold shadow-lg"
+    >
+      <Camera size={18} />
+      <span className="hidden sm:inline">Image</span>
+    </button>
 
-                    <button
-                      onClick={exportToPDF}
-                      className="flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition font-semibold shadow-lg"
-                    >
-                      <Download size={18} />
-                      PDF
-                    </button>
+    {/* Share Button with Dropdown */}
+    <div className="relative group">
+      <button className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition font-semibold shadow-lg">
+        <Share2 size={18} />
+        <span className="hidden sm:inline">Share</span>
+      </button>
 
-                    <button
-                      onClick={downloadAsImage}
-                      className="flex items-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition font-semibold shadow-lg"
-                    >
-                      <Camera size={18} />
-                      Image
-                    </button>
+      {/* Mobile & Desktop Dropdown */}
+      <div className="absolute mt-2 w-48 bg-gray-800 border border-white/20 rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-20 right-0 sm:right-0">
+        <button
+          onClick={() => shareToSocial('facebook')}
+          className="flex items-center gap-3 w-full px-4 py-3 hover:bg-white/10 text-white transition text-left rounded-t-lg"
+        >
+          <svg className="w-5 h-5 text-blue-500" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+          </svg>
+          Facebook
+        </button>
 
-                    <div className="relative group">
-                      <button className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition font-semibold shadow-lg">
-                        <Share2 size={18} />
-                        Share
-                      </button>
-                      <div className="absolute right-0 mt-2 w-48 bg-gray-800 border border-white/20 rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-10">
-                        <button
-                          onClick={() => shareToSocial("facebook")}
-                          className="flex items-center gap-3 w-full px-4 py-3 hover:bg-white/10 text-white transition text-left"
-                        >
-                          <svg
-                            className="w-5 h-5 text-blue-500"
-                            fill="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
-                          </svg>
-                          Facebook
-                        </button>
-                        <button
-                          onClick={() => shareToSocial("twitter")}
-                          className="flex items-center gap-3 w-full px-4 py-3 hover:bg-white/10 text-white transition text-left"
-                        >
-                          <svg
-                            className="w-5 h-5 text-sky-400"
-                            fill="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z" />
-                          </svg>
-                          Twitter
-                        </button>
-                        <button
-                          onClick={() => shareToSocial("linkedin")}
-                          className="flex items-center gap-3 w-full px-4 py-3 hover:bg-white/10 text-white transition text-left"
-                        >
-                          <svg
-                            className="w-5 h-5 text-blue-600"
-                            fill="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
-                          </svg>
-                          LinkedIn
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                )}
+        <button
+          onClick={() => shareToSocial('twitter')}
+          className="flex items-center gap-3 w-full px-4 py-3 hover:bg-white/10 text-white transition text-left"
+        >
+          <svg className="w-5 h-5 text-sky-400" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/>
+          </svg>
+          Twitter
+        </button>
+
+        <button
+          onClick={() => shareToSocial('linkedin')}
+          className="flex items-center gap-3 w-full px-4 py-3 hover:bg-white/10 text-white transition text-left rounded-b-lg"
+        >
+          <svg className="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+          </svg>
+          LinkedIn
+        </button>
+      </div>
+    </div>
+  </div>
+)}
               </div>
 
               {/* Summary Stats - KEEP YOUR EXISTING CODE */}

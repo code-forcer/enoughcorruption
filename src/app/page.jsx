@@ -47,11 +47,11 @@ const HomepageHeader = () => {
         {/* Horizontal Card Marquee */}
         <HorizontalCardMarquee />
         {/* How It Works Section   */}
-        <Features />
+        {/* <Features /> */}
         {/* Testimonials Section */}
-        <TestimonialCarousel />
+        {/* <TestimonialCarousel /> */}
         {/* How it work */}
-        <HowItWorks />
+        {/* <HowItWorks /> */}
         {/* Contact Section */}
         <Cta />
         {/* Footer */}

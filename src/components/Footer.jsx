@@ -13,9 +13,16 @@ export default function Footer() {
           <div className="col-span-2">
             <div className="flex items-center gap-3 mb-4">
               <div className="flex items-center justify-center bg-gradient-to-br from-blue-500 to-blue-700 rounded-lg w-10 h-10">
-                <img src="/favicon.ico" alt="ENOUGH Logo" />
+                <img src="/trump_logo.jpeg" alt="Enough Logo" />
               </div>
-              <span className="text-xl text-white font-black">ENOUGH!</span>
+             <div>
+                <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight">
+                  ENOUGH!
+                </h1>
+                <p className="text-xs text-blue-300 sm:block">
+                  Real-Time Polling
+                </p>
+              </div>
             </div>
 
             <p className="text-gray-400 text-sm leading-relaxed">

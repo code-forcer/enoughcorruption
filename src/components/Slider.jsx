@@ -1,9 +1,14 @@
 import React from "react";
 
+// const images = [
+//   "/slider/1.png",
+//   "/slider/2.png",
+//   "/slider/3.png",
+// ];
 const images = [
-  "/slider/1.png",
-  "/slider/2.png",
-  "/slider/3.png",
+  "/trump_logo.jpeg",
+  "/trump_logo.jpeg",
+  "/trump_logo.jpeg",
 ];
 
 export default function HorizontalCardMarquee() {
@@ -19,7 +24,7 @@ export default function HorizontalCardMarquee() {
               <img
                 src={img}
                 alt={`Card ${idx + 1}`}
-                className="w-full h-full object-cover object-center"
+                className="w-full h-full object-cover object-center p-5"
                 loading="lazy"
               />
             </div>

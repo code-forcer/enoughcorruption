@@ -19,7 +19,7 @@ export default function About() {
             </p>
 
             <p className="text-xl text-gray-300 max-w-3xl mx-auto mt-6">
-              This is Outrage, Crowdsourced. Be part of it.
+              Enough! is Outrage, Crowdsourced. Be part of it.
             </p>
           </div>
 

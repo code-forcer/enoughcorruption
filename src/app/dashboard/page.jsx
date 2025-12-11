@@ -110,14 +110,14 @@ const UnifiedDashboard = () => {
 
   // ========= OPTIONAL AUTO ROTATE (DISABLED BY DEFAULT) =========
   // Uncomment to enable auto-rotate every 20 seconds
-  /*
+
   useEffect(() => {
     if (!allQuestions.length) return;
 
     const auto = setInterval(() => nextPoll(), 20000);
     return () => clearInterval(auto);
   }, [allQuestions]);
-  */
+
 
   // Fade animation classes
   const animationClass = animating
@@ -202,13 +202,19 @@ const UnifiedDashboard = () => {
         headers: { Authorization: `Bearer ${getToken()}` },
       });
       const data = await res.json();
-      setAllQuestions(data.data || []);
-      setActiveQuestion(data.active);
+
+      // Shuffle the questions array randomly
+      const shuffled = (data.data || []).sort(() => Math.random() - 0.5);
+
+      setAllQuestions(shuffled);
+      setActiveQuestion(shuffled[0]); // Set first from shuffled array
+      setCurrentIndex(0); // Reset index
     } catch (error) {
       console.error("Error loading questions:", error);
       setError("Failed to load questions");
     }
   };
+
   // Load results
   const loadResults = async (questionId = null) => {
     try {
@@ -405,81 +411,203 @@ const UnifiedDashboard = () => {
     "#8B5CF6",
     "#EC4899",
   ];
+  // Helper function to fix unsupported colors before export
+  const prepareElementForExport = (element) => {
+    const clone = element.cloneNode(true);
 
-  // Export to PDF/Image
+    // Find all elements with potentially problematic colors
+    const allElements = clone.querySelectorAll('*');
+    allElements.forEach(el => {
+      const computedStyle = window.getComputedStyle(el);
+
+      // Convert background-color
+      if (computedStyle.backgroundColor && computedStyle.backgroundColor.includes('lab')) {
+        el.style.backgroundColor = '#0f172a'; // Fallback color
+      }
+
+      // Convert color
+      if (computedStyle.color && computedStyle.color.includes('lab')) {
+        el.style.color = '#ffffff'; // Fallback color
+      }
+
+      // Convert border-color
+      if (computedStyle.borderColor && computedStyle.borderColor.includes('lab')) {
+        el.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+      }
+    });
+
+    return clone;
+  };
+  // PDF Export with better library detection
   const exportToPDF = async () => {
     try {
-      const html2canvas = (
-        await import("https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/+esm")
-      ).default;
+      // Better library detection with longer timeout
+      let attempts = 0;
+      const maxAttempts = 50; // 10 seconds total
+
+      while (attempts < maxAttempts) {
+        if (window.domtoimage && window.jspdf) {
+          break; // Both libraries loaded!
+        }
+        await new Promise(resolve => setTimeout(resolve, 200));
+        attempts++;
+      }
+
+      // Debug: Log what we found
+      console.log('domtoimage:', typeof window.domtoimage);
+      console.log('jspdf:', typeof window.jspdf);
+
+      if (!window.domtoimage || !window.jspdf) {
+        alert("❌ Libraries failed to load. Please:\n1. Refresh the page\n2. Wait 5 seconds\n3. Try export again");
+        return;
+      }
 
       const element = document.getElementById("results-content");
-      const canvas = await html2canvas(element, {
-        backgroundColor: "#0f172a",
-        scale: 2,
-        logging: false,
+      if (!element) {
+        alert("❌ Could not find results to export");
+        return;
+      }
+
+      // Show loading
+      const loadingDiv = document.createElement('div');
+      loadingDiv.id = 'pdf-loading';
+      loadingDiv.innerHTML = '<div style="position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,0.9);color:white;padding:20px 40px;border-radius:10px;z-index:9999;font-family:sans-serif;font-size:16px;">Generating PDF...<br/><small>This may take a few seconds</small></div>';
+      document.body.appendChild(loadingDiv);
+
+      // Generate image
+      const dataUrl = await window.domtoimage.toPng(element, {
+        quality: 0.95,
+        bgcolor: '#0f172a',
       });
 
-      const imgData = canvas.toDataURL("image/png");
-      const link = document.createElement("a");
-      link.download = `poll-results-${Date.now()}.png`;
-      link.href = imgData;
-      link.click();
+      // Create PDF
+      const { jsPDF } = window.jspdf;
+      const pdf = new jsPDF({
+        orientation: "portrait",
+        unit: "px",
+        format: "a4",
+      });
 
-      alert(
-        "Results saved as image! For PDF, print this page and save as PDF from your browser."
-      );
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = pdf.internal.pageSize.getHeight();
+
+      pdf.addImage(dataUrl, "PNG", 0, 0, pdfWidth, pdfHeight);
+
+      // Cleanup
+      document.body.removeChild(loadingDiv);
+
+      // Download
+      pdf.save(`poll-results-${Date.now()}.pdf`);
+      alert("✅ PDF downloaded successfully!");
+
     } catch (error) {
-      console.error("Export error:", error);
-      alert("Export failed. Please try CSV instead.");
+      console.error("PDF export error:", error);
+      const loadingDiv = document.getElementById('pdf-loading');
+      if (loadingDiv) document.body.removeChild(loadingDiv);
+      alert("❌ Export failed: " + error.message);
     }
   };
 
-  // Download as Image
+  // Image Download with better library detection
   const downloadAsImage = async () => {
     try {
-      const html2canvas = (
-        await import("https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/+esm")
-      ).default;
+      // Better library detection
+      let attempts = 0;
+      const maxAttempts = 50;
+
+      while (attempts < maxAttempts) {
+        if (window.domtoimage) {
+          break;
+        }
+        await new Promise(resolve => setTimeout(resolve, 200));
+        attempts++;
+      }
+
+      console.log('domtoimage:', typeof window.domtoimage);
+
+      if (!window.domtoimage) {
+        alert("❌ Library failed to load. Please:\n1. Refresh the page\n2. Wait 5 seconds\n3. Try export again");
+        return;
+      }
 
       const element = document.getElementById("results-content");
-      const canvas = await html2canvas(element, {
-        backgroundColor: "#0f172a",
-        scale: 2,
-        logging: false,
+      if (!element) {
+        alert("❌ Could not find results to export");
+        return;
+      }
+
+      // Show loading
+      const loadingDiv = document.createElement('div');
+      loadingDiv.id = 'image-loading';
+      loadingDiv.innerHTML = '<div style="position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,0.9);color:white;padding:20px 40px;border-radius:10px;z-index:9999;font-family:sans-serif;font-size:16px;">Generating Image...<br/><small>This may take a few seconds</small></div>';
+      document.body.appendChild(loadingDiv);
+
+      // Generate image
+      const blob = await window.domtoimage.toBlob(element, {
+        quality: 0.95,
+        bgcolor: '#0f172a',
       });
 
-      canvas.toBlob((blob) => {
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = `poll-results-${Date.now()}.png`;
-        a.click();
-      });
+      // Download
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `poll-results-${Date.now()}.png`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+
+      // Cleanup
+      document.body.removeChild(loadingDiv);
+      alert("✅ Image downloaded successfully!");
+
     } catch (error) {
       console.error("Image export error:", error);
-      alert("Image export failed.");
+      const loadingDiv = document.getElementById('image-loading');
+      if (loadingDiv) document.body.removeChild(loadingDiv);
+      alert("❌ Export failed: " + error.message);
     }
   };
-
-  // Social sharing
   const shareToSocial = (platform) => {
-    const text = `Poll Results: ${activeQuestion?.text}\nTop choice: ${dashboardData?.top5?.[0]?.term} (${dashboardData?.top5?.[0]?.percentage}%)`;
-    const url = window.location.href;
+    const questionText = activeQuestion?.text || "Poll Results";
+    const topTerm = dashboardData?.top5?.[0]?.term || "N/A";
+    const topPercentage = dashboardData?.top5?.[0]?.percentage || "0";
+
+    const text = `${questionText}\n\nTop choice: ${topTerm} (${topPercentage}%)`;
+    const url = typeof window !== 'undefined' ? window.location.href : '';
 
     const shareUrls = {
-      facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
-        url
-      )}`,
-      twitter: `https://twitter.com/intent/tweet?text=${encodeURIComponent(
-        text
-      )}&url=${encodeURIComponent(url)}`,
-      linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(
-        url
-      )}`,
+      facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`,
+      twitter: `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`,
+      // Instagram doesn't have a web share URL, so we'll copy to clipboard
+      instagram: null,
     };
 
-    window.open(shareUrls[platform], "_blank", "width=600,height=400");
+    // Special handling for Instagram
+    if (platform === 'instagram') {
+      // Copy text and URL to clipboard
+      const shareText = `${text}\n\n${url}`;
+      navigator.clipboard.writeText(shareText).then(() => {
+        alert('✅ Copied to clipboard!\n\nPaste this in your Instagram story or post.');
+      }).catch(() => {
+        alert('📋 Copy this text and paste in Instagram:\n\n' + shareText);
+      });
+      return;
+    }
+
+    if (shareUrls[platform]) {
+      const width = 600;
+      const height = 600;
+      const left = (window.screen.width - width) / 2;
+      const top = (window.screen.height - height) / 2;
+
+      window.open(
+        shareUrls[platform],
+        'share-dialog',
+        `width=${width},height=${height},top=${top},left=${left},scrollbars=yes,resizable=yes`
+      );
+    }
   };
 
   // Custom tooltip for charts
@@ -724,9 +852,9 @@ const UnifiedDashboard = () => {
               {activeQuestion && (
                 <div className="bg-gradient-to-br from-blue-500/10 to-purple-500/10 border border-blue-500/30 rounded-xl p-6">
                   <h3 className="text-xl font-bold text-white mb-2">Active Question</h3>
-                  <p className="text-gray-300 text-lg">{activeQuestion.text}</p>
+                  <h2 className="text-white text-lg italic">{activeQuestion.text}</h2>
 
-                  <span className="text-gray-400 text-sm">
+                  <span className="text-white text-sm">
                     {activeQuestion.pubDate
                       ? new Date(activeQuestion.pubDate).toLocaleDateString("en-US", {
                         month: "short",
@@ -765,9 +893,9 @@ const UnifiedDashboard = () => {
                 <div className="mb-6">
                   {/* Title + Date */}
                   <div className={animationClass}>
-                    <h2 className="text-3xl font-bold text-white mb-2">
+                    <h2 className="text-3xl font-bold italic text-white mb-2">
                       {activeQuestion ? activeQuestion.text : "No active question"}
-                      &nbsp; - &nbsp;<span className="text-gray-400 text-sm">
+                      &nbsp; - &nbsp;<span className="text-white text-sm">
                         {activeQuestion?.pubDate
                           ? new Date(activeQuestion.pubDate).toLocaleDateString(
                             "en-US",
@@ -927,14 +1055,18 @@ const UnifiedDashboard = () => {
                     </button>
 
                     {/* Share Button with Dropdown */}
+                    {/* Share Button with Dropdown */}
+                    {/* Share Button with Dropdown */}
                     <div className="relative group">
                       <button className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition font-semibold shadow-lg">
                         <Share2 size={18} />
                         <span className="hidden sm:inline">Share</span>
                       </button>
 
-                      {/* Mobile & Desktop Dropdown */}
-                      <div className="absolute mt-2 w-48 bg-gray-800 border border-white/20 rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-20 right-0 sm:right-0">
+                      {/* Dropdown - 3 platforms only */}
+                      <div className="absolute right-0 mt-2 w-48 bg-gray-800 border border-white/20 rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible group-focus-within:opacity-100 group-focus-within:visible transition-all z-50">
+
+                        {/* Facebook */}
                         <button
                           onClick={() => shareToSocial('facebook')}
                           className="flex items-center gap-3 w-full px-4 py-3 hover:bg-white/10 text-white transition text-left rounded-t-lg"
@@ -945,24 +1077,33 @@ const UnifiedDashboard = () => {
                           Facebook
                         </button>
 
+                        {/* X (Twitter) */}
                         <button
                           onClick={() => shareToSocial('twitter')}
                           className="flex items-center gap-3 w-full px-4 py-3 hover:bg-white/10 text-white transition text-left"
                         >
-                          <svg className="w-5 h-5 text-sky-400" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z" />
+                          <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
                           </svg>
-                          Twitter
+                          X (Twitter)
                         </button>
 
+                        {/* Instagram */}
                         <button
-                          onClick={() => shareToSocial('linkedin')}
+                          onClick={() => shareToSocial('instagram')}
                           className="flex items-center gap-3 w-full px-4 py-3 hover:bg-white/10 text-white transition text-left rounded-b-lg"
                         >
-                          <svg className="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+                          <svg className="w-5 h-5" fill="url(#instagram-gradient)" viewBox="0 0 24 24">
+                            <defs>
+                              <linearGradient id="instagram-gradient" x1="0%" y1="100%" x2="100%" y2="0%">
+                                <stop offset="0%" style={{ stopColor: '#FED576' }} />
+                                <stop offset="50%" style={{ stopColor: '#F47133' }} />
+                                <stop offset="100%" style={{ stopColor: '#BC3081' }} />
+                              </linearGradient>
+                            </defs>
+                            <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
                           </svg>
-                          LinkedIn
+                          Instagram
                         </button>
                       </div>
                     </div>

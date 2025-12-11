@@ -1,4 +1,5 @@
 import "./globals.css";
+import Script from 'next/script';
 
 /* ------------------------------
    Viewport (REQUIRED SEPARATE EXPORT)
@@ -18,8 +19,8 @@ export const viewport = {
    Metadata
 -------------------------------- */
 export const metadata = {
-   metadataBase: new URL("http://localhost:3000"),
-   
+  metadataBase: new URL("http://localhost:3000"),
+
   title: {
     default: "Enough! — Live Polling & Real-Time Voting Platform",
     template: "%s | Enough!",
@@ -65,10 +66,10 @@ export const metadata = {
       "Create, share, and track live polls with instant results, charts, and real-time audience engagement.",
     images: [
       {
-        url: "/og-image.png",
+        url: "/1.png",
         width: 1200,
         height: 630,
-        alt: "Enough! Live Polling Platform",
+        alt: "Enough! — Outrage, crowdsourced & Live Voting Platform",
       },
     ],
   },
@@ -79,7 +80,7 @@ export const metadata = {
     description:
       "Run live polls, watch results update instantly, and engage audiences in real time.",
     creator: "@enough",
-    images: ["/twitter-image.png"],
+    images: ["/1.png"],
   },
 
   robots: {
@@ -97,12 +98,12 @@ export const metadata = {
   icons: {
     icon: [
       { url: "/favicon.ico" },
-      { url: "/icon-16x16.png", sizes: "16x16", type: "image/png" },
-      { url: "/icon-32x32.png", sizes: "32x32", type: "image/png" },
+      { url: "/favicon.png", sizes: "16x16", type: "image/png" },
+      { url: "/favicon.png", sizes: "32x32", type: "image/png" },
     ],
     apple: [
       {
-        url: "/apple-touch-icon.png",
+        url: "/1.png",
         sizes: "180x180",
         type: "image/png",
       },
@@ -120,6 +121,9 @@ export const metadata = {
 
   category: "technology",
 };
+/* ------------------------------
+   Root Layout
+-------------------------------- */
 
 export default function RootLayout({ children }) {
   return (
@@ -140,7 +144,17 @@ export default function RootLayout({ children }) {
       </head>
       <body className="antialiased">
         {children}
-        </body>
+        
+        {/* Load libraries after page is interactive */}
+        <Script 
+          src="https://cdn.jsdelivr.net/npm/dom-to-image-more@2.14.0/dist/dom-to-image-more.min.js"
+          strategy="afterInteractive"
+        />
+        <Script 
+          src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"
+          strategy="afterInteractive"
+        />
+      </body>
     </html>
   );
 }

@@ -27,14 +27,12 @@ export default function Hero() {
 
           {/* Main Title */}
           <h1 className="text-4xl sm:text-5xl md:text-7xl font-black mb-6 bg-gradient-to-r from-blue-400 via-cyan-300 to-blue-500 bg-clip-text text-transparent leading-tight">
-            Here's your platform
-            <br />
-            to sound off
+            Have You Had Enough?
           </h1>
 
           {/* Client exact text */}
           <p className="text-lg sm:text-xl text-gray-300 mb-6 max-w-2xl mx-auto">
-            Here's you platform to sound off with thousands of others to voice
+            Here's your platform to sound off with thousands of others to voice
             your outrage.
           </p>
 

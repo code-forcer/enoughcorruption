@@ -13,12 +13,13 @@ export default function About() {
               About ENOUGH!
             </h2>
 
-            <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-              We're revolutionizing how people sound off, share their opinions
-              and recognize that they are not alone. This is NOT normal.
+            <p className="text-xl text-gray-300 max-w-3xl mx-auto text-center">
+              We're revolutionizing how people sound off, share their opinions,<br />
+              and recognize that they are not alone.<br />
+              This is <strong>NOT normal.</strong>
             </p>
 
-            <p className="text-xl text-gray-300 max-w-3xl mx-auto mt-6">
+            <p className="text-xl text-gray-300 max-w-3xl mx-auto text-center mt-6">
               Enough! is Outrage, Crowdsourced. Be part of it.
             </p>
           </div>

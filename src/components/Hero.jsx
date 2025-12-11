@@ -30,7 +30,7 @@ export default function Hero() {
 
           <p className="text-lg sm:text-xl text-gray-300 mb-6 max-w-2xl mx-auto">
             You can submit your opinions, anonymously, on over 1,000 Trump actions.
-           Not just what he did this week but what he has been doing since his Inauguration!.
+           Not just what he did this week but what he has been doing since his Inauguration!
           </p>
 
           <p className="text-lg sm:text-xl text-gray-300 mb-10 max-w-2xl mx-auto">

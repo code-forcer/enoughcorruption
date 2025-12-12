@@ -645,11 +645,11 @@ const UnifiedDashboard = () => {
 
               <div className="flex items-center gap-3">
                 <div className="flex items-center justify-center bg-gradient-to-br from-blue-500 to-blue-700 rounded-xl w-10 h-10 sm:w-12 sm:h-12 shadow-lg">
-                  <img src="/trump_logo.jpeg" alt="Enough Logo" />
+                  <img src="/trump_logo.jpeg" alt="ThisIsNotNormal Logo" />
                 </div>
                 <div className="sm:block">
                   <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight">
-                    ENOUGH!
+                    ThisIsNotNormal!
                   </h1>
                   <p className="text-xs text-blue-300">Outrage, crowdsourced</p>
                 </div>
@@ -740,7 +740,7 @@ const UnifiedDashboard = () => {
           <aside className="fixed top-0 left-0 h-full w-72 bg-gray-900 z-50 transform transition-transform duration-300 lg:hidden">
             <div className="flex flex-col h-full">
               <div className="flex items-center justify-between p-6 border-b border-white/10">
-                <h2 className="text-lg font-black text-white">ENOUGH!</h2>
+                <h2 className="text-lg font-black text-white">ThisIsNotNormal!</h2>
                 <button
                   onClick={() => setIsSidebarOpen(false)}
                   className="p-2 rounded-lg hover:bg-white/10"

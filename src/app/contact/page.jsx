@@ -156,7 +156,7 @@ export default function ContactPage() {
                 ready.
               </p>
               <p className="mt-2 text-blue-400 font-semibold">
-                support@enoughcorruption.org
+                support@thisisnotnormal.social
               </p>
             </div>
 
@@ -165,11 +165,11 @@ export default function ContactPage() {
                 Partnerships
               </h3>
               <p className="text-gray-300">
-                Collaborate with ENOUGH! on campaigns or
+                Collaborate with ThisIsNotNormal! on campaigns or
                 integrations.
               </p>
               <p className="mt-2 text-blue-400 font-semibold">
-                partners@enoughcorruption.org
+                partners@thisisnotnormal.social
               </p>
             </div>
 
@@ -181,7 +181,7 @@ export default function ContactPage() {
                 Sponsorships, media, or enterprise solutions.
               </p>
               <p className="mt-2 text-blue-400 font-semibold">
-                business@enoughcorruption.org
+                business@thisisnotnormal.social
               </p>
             </div>
 

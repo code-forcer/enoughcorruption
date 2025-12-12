@@ -10,17 +10,18 @@ export default function About() {
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-3xl sm:text-5xl font-black mb-4 bg-clip-text text-white">
-              About ENOUGH!
+              About This Is Not Normal
             </h2>
 
             <p className="text-xl text-gray-300 max-w-3xl mx-auto text-center">
-              We're revolutionizing how people sound off, share their opinions,<br />
+              We're revolutionizing how people can sound off, share their opinions,<br />
               and recognize that they are not alone.<br />
-              This is <strong>NOT normal.</strong>
+              Shout it out, call out what is wrong and immoral.<br />
+              <strong>This Is NOT Normal.</strong>
             </p>
 
             <p className="text-xl text-gray-300 max-w-3xl mx-auto text-center mt-6">
-              Enough! is Outrage, Crowdsourced. Be part of it.
+              This Is Not Normal is Outrage, Crowdsourced. Be part of it.
             </p>
           </div>
 

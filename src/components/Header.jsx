@@ -52,11 +52,11 @@ export default function Header() {
             {/* Left: Logo */}
             <a href="/#home" className="flex items-center gap-3 group z-10">
               <div className="flex items-center justify-center bg-gradient-to-br from-blue-500 to-blue-700 rounded-xl w-10 h-10 sm:w-12 sm:h-12 shadow-lg shadow-blue-500/50 group-hover:shadow-blue-500/70 group-hover:scale-105 transition-all">
-                <img src="/trump_logo.jpeg" alt="Enough Logo" />
+                <img src="/trump_logo.jpeg" alt="ThisIsNotNormal Logo" />
               </div>
               <div>
                 <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight">
-                  ENOUGH!
+                  ThisIsNotNormal!
                 </h1>
                 <p className="text-xs text-blue-300 sm:block">
                   Outrage, crowdsourced
@@ -121,10 +121,10 @@ export default function Header() {
           <div className="flex items-center justify-between p-6 border-b border-white/10">
             <div className="flex items-center gap-3">
               <div className="flex items-center justify-center bg-gradient-to-br from-blue-500 to-blue-700 rounded-xl w-10 h-10 shadow-lg shadow-blue-500/50">
-                <img src="/favicon.ico" alt="Enough Logo" />
+                <img src="/favicon.ico" alt="ThisIsNotNormal Logo" />
               </div>
               <div>
-                <h2 className="text-lg font-black text-white">ENOUGH!</h2>
+                <h2 className="text-lg font-black text-white">ThisIsNotNormal!</h2>
                 <p className="text-xs text-blue-300">Outrage, crowdsourced</p>
               </div>
             </div>

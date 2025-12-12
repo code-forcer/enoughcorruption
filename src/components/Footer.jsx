@@ -13,11 +13,11 @@ export default function Footer() {
           <div className="col-span-2">
             <div className="flex items-center gap-3 mb-4">
               <div className="flex items-center justify-center bg-gradient-to-br from-blue-500 to-blue-700 rounded-lg w-10 h-10">
-                <img src="/trump_logo.jpeg" alt="Enough Logo" />
+                <img src="/trump_logo.jpeg" alt="ThisIsNotNormal Logo" />
               </div>
               <div>
                 <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight">
-                  ENOUGH!
+                  ThisIsNotNormal!
                 </h1>
                 <p className="text-xs text-blue-300 sm:block">
                   Outrage, crowdsourced
@@ -27,7 +27,7 @@ export default function Footer() {
 
             <p className="text-gray-400 text-sm leading-relaxed">
 
-              ENOUGH! is a new outlet for the expression of Outrage. A crowdsourced platform designed for instant insights, deeper audience engagement, and easy to read and share, real-time results.
+              ThisIsNotNormal! is a new outlet for the expression of Outrage. A crowdsourced platform designed for instant insights, deeper audience engagement, and easy to read and share, real-time results.
             </p>
           </div>
 
@@ -99,7 +99,7 @@ export default function Footer() {
         {/* Divider + Copyright */}
         <div className="border-t border-white/10 pt-8 text-center">
           <p className="text-sm text-gray-500">
-            © {new Date().getFullYear()} <span className="text-blue-400">ENOUGH!</span>  — All rights reserved.
+            © {new Date().getFullYear()} <span className="text-blue-400">ThisIsNotNormal!</span>  — All rights reserved.
             <br />
             Built with{" "}
             <FaHeart className="inline-block w-4 h-4 text-red-500 mx-1" /> for the people

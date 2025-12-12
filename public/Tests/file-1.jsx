@@ -57,7 +57,7 @@ const Homepage = () => {
                   </div>
                 </div>
                 <div>
-                  <h1 className="text-lg sm:text-2xl font-black tracking-tight">ENOUGH!</h1>
+                  <h1 className="text-lg sm:text-2xl font-black tracking-tight">ThisIsNotNormal!</h1>
                   <p className="text-xs text-blue-300 hidden sm:block">Outrage, crowdsourced Platform</p>
                 </div>
               </div>
@@ -258,13 +258,13 @@ const Homepage = () => {
                   </div>
                 </div>
                 <div>
-                  <h4 className="text-xl sm:text-2xl font-black">ENOUGH!</h4>
+                  <h4 className="text-xl sm:text-2xl font-black">ThisIsNotNormal!</h4>
                   <p className="text-blue-300 text-xs sm:text-sm">Your Brand. Your Vision.</p>
                 </div>
               </div>
               <p className="text-sm sm:text-base text-gray-300 leading-relaxed">
                 This isn't a template or a generic solution. From the custom logo to the unique color scheme, 
-                every pixel is designed specifically for you. The "ENOUGH!" brand identity is yours alone—a 
+                every pixel is designed specifically for you. The "ThisIsNotNormal!" brand identity is yours alone—a 
                 distinctive mark that sets your platform apart in the polling industry.
               </p>
             </div>
@@ -343,7 +343,7 @@ const Homepage = () => {
                 <div className="bg-white rounded-full" style={{ width: '3px', height: '3px', marginBottom: '12px' }}></div>
               </div>
             </div>
-            <span className="text-lg sm:text-xl font-black">ENOUGH!</span>
+            <span className="text-lg sm:text-xl font-black">ThisIsNotNormal!</span>
           </div>
           <p className="text-sm sm:text-base text-gray-500 mb-2">Built exclusively for David Katzner</p>
           <p className="text-xs sm:text-sm text-gray-600">Developed by <span className="text-blue-400 font-semibold">DevPete || Codeforcer</span></p>

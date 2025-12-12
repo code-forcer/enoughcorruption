@@ -22,12 +22,12 @@ export const metadata = {
   metadataBase: new URL("http://localhost:3000"),
 
   title: {
-    default: "Enough! — Live Polling & Real-Time Voting Platform",
-    template: "%s | Enough!",
+    default: "ThisIsNotNormal! — Live Polling & Real-Time Voting Platform",
+    template: "%s | ThisIsNotNormal!",
   },
 
   description:
-    "Enough! is a Outrage, crowdsourced and voting platform for live polls, instant results, interactive charts, and data-driven public engagement across web and mobile.",
+    "ThisIsNotNormal! is a Outrage, crowdsourced and voting platform for live polls, instant results, interactive charts, and data-driven public engagement across web and mobile.",
 
   keywords: [
     "live polling platform",
@@ -44,9 +44,9 @@ export const metadata = {
 
   authors: [{ name: "DevPete (Codeforcer)" }],
   creator: "DevPete (Codeforcer)",
-  publisher: "Enough!",
+  publisher: "ThisIsNotNormal!",
 
-  applicationName: "Enough!",
+  applicationName: "ThisIsNotNormal!",
   generator: "Next.js",
   referrer: "origin-when-cross-origin",
 
@@ -59,9 +59,9 @@ export const metadata = {
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: "https://enoughcorruption.org",
-    siteName: "Enough!",
-    title: "Enough! — Outrage, crowdsourced & Live Voting Platform",
+    url: "https://thisisnotnormal.social",
+    siteName: "ThisIsNotNormal!",
+    title: "ThisIsNotNormal! — Outrage, crowdsourced & Live Voting Platform",
     description:
       "Create, share, and track live polls with instant results, charts, and real-time audience engagement.",
     images: [
@@ -69,17 +69,17 @@ export const metadata = {
         url: "/1.png",
         width: 1200,
         height: 630,
-        alt: "Enough! — Outrage, crowdsourced & Live Voting Platform",
+        alt: "ThisIsNotNormal! — Outrage, crowdsourced & Live Voting Platform",
       },
     ],
   },
 
   twitter: {
     card: "summary_large_image",
-    title: "Enough! — Live Polling & Real-Time Results",
+    title: "ThisIsNotNormal! — Live Polling & Real-Time Results",
     description:
       "Run live polls, watch results update instantly, and engage audiences in real time.",
-    creator: "@enough",
+    creator: "@ThisIsNotNormal",
     images: ["/1.png"],
   },
 
@@ -137,10 +137,10 @@ export default function RootLayout({ children }) {
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-        <meta name="apple-mobile-web-app-title" content="Enough!" />
+        <meta name="apple-mobile-web-app-title" content="ThisIsNotNormal!" />
 
         {/* SEO */}
-        <link rel="canonical" href="https://enoughcorruption.org" />
+        <link rel="canonical" href="https://thisisnotnormal.social" />
       </head>
       <body className="antialiased">
         {children}

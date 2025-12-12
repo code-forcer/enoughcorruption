@@ -19,7 +19,7 @@ export default function Hero() {
         <div className="relative max-w-7xl mx-auto text-center">
               {/* Main Title */}
           <h1 className="text-4xl sm:text-5xl md:text-7xl font-black mb-6 bg-gradient-to-r from-blue-400 via-cyan-300 to-blue-500 bg-clip-text text-transparent leading-tight">
-            Have You Had ThisIsNotNormal!
+            Have You Had This Is Not Normal
           </h1>
 
           {/* Client exact text */}

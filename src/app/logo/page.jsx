@@ -9,7 +9,7 @@ const LogoGenerator = () => {
     <div className="min-h-screen bg-gray-100 p-8 text-black">
       <div className="max-w-7xl mx-auto">
         <div className="bg-white rounded-lg shadow-lg p-8 mb-8">
-          <h1 className="text-3xl font-bold mb-4">ThisIsNotNormal Logo & Favicon Generator for ThisIsNotNormal!</h1>
+          <h1 className="text-3xl font-bold mb-4">This Is Not Normal Logo & Favicon Generator for This Is Not Normal</h1>
           <p className="text-gray-600 mb-6">
             Click on each design to view it larger. Right-click to save the image or take screenshots.
           </p>
@@ -169,7 +169,7 @@ const LogoGenerator = () => {
                     {/* Right: Text */}
                     <div className="text-right">
                       <h1 className="text-white font-black mb-6" style={{ fontSize: '120px', letterSpacing: '2px' }}>
-                        ThisIsNotNormal!
+                        This Is Not Normal
                       </h1>
                       <p className="text-gray-300 font-semibold" style={{ fontSize: '35px' }}>
                         Outrage, crowdsourced & LIVE RESULTS
@@ -211,7 +211,7 @@ const LogoGenerator = () => {
 
                     {/* Text */}
                     <h1 className="text-white font-black mb-8" style={{ fontSize: '80px', letterSpacing: '4px' }}>
-                      ThisIsNotNormal!
+                      This Is Not Normal
                     </h1>
                     <p className="text-white/90 font-bold" style={{ fontSize: '35px' }}>
                       CREATE POLLS • GET REAL-TIME RESULTS
@@ -260,7 +260,7 @@ const LogoGenerator = () => {
                         </div>
                       </div>
                       <h1 className="text-white font-black" style={{ fontSize: '100px' }}>
-                        ThisIsNotNormal!
+                        This Is Not Normal
                       </h1>
                     </div>
                     <p className="text-white font-bold mb-4" style={{ fontSize: '40px' }}>

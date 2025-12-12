@@ -7,25 +7,25 @@ export default function Features() {
       title: "Real-Time Poll Creation",
       description:
         "Create stunning, interactive polls in seconds with a smooth and intuitive interface. Designed for speed and simplicity.",
-      image: "/ThisIsNotNormal-images/6.png",
+      image: "/This Is Not Normal-images/6.png",
     },
     {
       title: "AI-Powered Insights",
       description:
         "Get predictions, suggestions, and analytics powered by our advanced AI engine. Make smarter decisions instantly.",
-      image: "/ThisIsNotNormal-images/9.png",
+      image: "/This Is Not Normal-images/9.png",
     },
     {
       title: "Deep Analytics Dashboard",
       description:
         "Track responses, engagement rates, demographics, and voting patterns with a beautiful, real-time analytics dashboard.",
-      image: "/ThisIsNotNormal-images/11.png",
+      image: "/This Is Not Normal-images/11.png",
     },
     {
       title: "Engagement-Boosting Tools",
       description:
         "Promote polls, increase reach, and boost engagement using built-in sharing tools and social media optimization.",
-      image: "/ThisIsNotNormal-images/17.png",
+      image: "/This Is Not Normal-images/17.png",
     },
   ];
 

@@ -22,12 +22,12 @@ export const metadata = {
   metadataBase: new URL("http://localhost:3000"),
 
   title: {
-    default: "ThisIsNotNormal! — Live Polling & Real-Time Voting Platform",
-    template: "%s | ThisIsNotNormal!",
+    default: "This Is Not Normal — Live Polling & Real-Time Voting Platform",
+    template: "%s | This Is Not Normal",
   },
 
   description:
-    "ThisIsNotNormal! is a Outrage, crowdsourced and voting platform for live polls, instant results, interactive charts, and data-driven public engagement across web and mobile.",
+    "This Is Not Normal is a Outrage, crowdsourced and voting platform for live polls, instant results, interactive charts, and data-driven public engagement across web and mobile.",
 
   keywords: [
     "live polling platform",
@@ -42,11 +42,11 @@ export const metadata = {
     "real-time data visualization",
   ],
 
-  authors: [{ name: "DevPete (Codeforcer)" }],
-  creator: "DevPete (Codeforcer)",
-  publisher: "ThisIsNotNormal!",
+  authors: [{ name: "**" }],
+  creator: "**This Is Not Normal**",
+  publisher: "This Is Not Normal",
 
-  applicationName: "ThisIsNotNormal!",
+  applicationName: "This Is Not Normal",
   generator: "Next.js",
   referrer: "origin-when-cross-origin",
 
@@ -60,27 +60,27 @@ export const metadata = {
     type: "website",
     locale: "en_US",
     url: "https://thisisnotnormal.social",
-    siteName: "ThisIsNotNormal!",
-    title: "ThisIsNotNormal! — Outrage, crowdsourced & Live Voting Platform",
+    siteName: "This Is Not Normal",
+    title: "This Is Not Normal — Outrage, crowdsourced & Live Voting Platform",
     description:
       "Create, share, and track live polls with instant results, charts, and real-time audience engagement.",
     images: [
       {
-        url: "/1.png",
+        url: "/favicon.ico",
         width: 1200,
         height: 630,
-        alt: "ThisIsNotNormal! — Outrage, crowdsourced & Live Voting Platform",
+        alt: "This Is Not Normal — Outrage, crowdsourced & Live Voting Platform",
       },
     ],
   },
 
   twitter: {
     card: "summary_large_image",
-    title: "ThisIsNotNormal! — Live Polling & Real-Time Results",
+    title: "This Is Not Normal — Live Polling & Real-Time Results",
     description:
       "Run live polls, watch results update instantly, and engage audiences in real time.",
-    creator: "@ThisIsNotNormal",
-    images: ["/1.png"],
+    creator: "@This Is Not Normal",
+    images: ["/favicon.ico"],
   },
 
   robots: {
@@ -98,12 +98,12 @@ export const metadata = {
   icons: {
     icon: [
       { url: "/favicon.ico" },
-      { url: "/favicon.png", sizes: "16x16", type: "image/png" },
-      { url: "/favicon.png", sizes: "32x32", type: "image/png" },
+      { url: "/favicon.ico", sizes: "16x16", type: "image/png" },
+      { url: "/favicon.ico", sizes: "32x32", type: "image/png" },
     ],
     apple: [
       {
-        url: "/1.png",
+        url: "/favicon.ico",
         sizes: "180x180",
         type: "image/png",
       },
@@ -137,12 +137,14 @@ export default function RootLayout({ children }) {
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-        <meta name="apple-mobile-web-app-title" content="ThisIsNotNormal!" />
+        <meta name="apple-mobile-web-app-title" content="This Is Not Normal" />
 
         {/* SEO */}
         <link rel="canonical" href="https://thisisnotnormal.social" />
       </head>
-      <body className="antialiased">
+      <body
+        className="antialiased"
+      >
         {children}
         
         {/* Load libraries after page is interactive */}

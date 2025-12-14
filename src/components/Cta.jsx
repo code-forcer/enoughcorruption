@@ -54,9 +54,10 @@ export default function Cta() {
             bg-blue-600 hover:bg-blue-500
             rounded-lg font-semibold
             transition-colors
+            text-white
           "
         >
-          <Mail className="w-5 h-5" />
+          <Mail className="w-5 h-5 text-white" />
           Contact/Email Us
         </a>
 

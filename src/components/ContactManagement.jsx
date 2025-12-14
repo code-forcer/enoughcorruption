@@ -124,26 +124,26 @@ export default function ContactsManagement() {
     <>
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-        <div className="bg-white/5 border border-white/10 rounded-lg p-4">
+        <div className="bg-white/5 border border-white/10  p-4">
           <p className="text-gray-400 text-sm">Total Contacts</p>
           <p className="text-2xl font-bold text-white">{stats.total || 0}</p>
         </div>
-        <div className="bg-white/5 border border-white/10 rounded-lg p-4">
+        <div className="bg-white/5 border border-white/10  p-4">
           <p className="text-gray-400 text-sm">New</p>
           <p className="text-2xl font-bold text-white">{stats.new || 0}</p>
         </div>
-        <div className="bg-white/5 border border-white/10 rounded-lg p-4">
+        <div className="bg-white/5 border border-white/10  p-4">
           <p className="text-gray-400 text-sm">Replied</p>
           <p className="text-2xl font-bold text-white">{stats.replied || 0}</p>
         </div>
-        <div className="bg-white/5 border border-white/10 rounded-lg p-4">
+        <div className="bg-white/5 border border-white/10  p-4">
           <p className="text-gray-400 text-sm">Archived</p>
           <p className="text-2xl font-bold text-white">{stats.archived || 0}</p>
         </div>
       </div>
 
       {/* Filters */}
-      <div className="bg-white/5 border border-white/10 rounded-lg p-4 mb-6">
+      <div className="bg-white/5 border border-white/10  p-4 mb-6">
         <div className="flex flex-col md:flex-row gap-4">
           <div className="flex-1 relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
@@ -171,7 +171,7 @@ export default function ContactsManagement() {
       </div>
 
       {/* Contacts Table */}
-      <div className="bg-white/5 border border-white/10 rounded-lg overflow-hidden">
+      <div className="bg-white/5 border border-white/10  overflow-hidden">
         {loading ? (
           <div className="p-8 text-center text-gray-400">Loading...</div>
         ) : contacts.length === 0 ? (
@@ -224,7 +224,7 @@ export default function ContactsManagement() {
       {/* Contact Details Modal */}
       {showModal && selectedContact && (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50">
-          <div className="bg-gray-800 rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+          <div className="bg-gray-800  max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div className="p-6 border-b border-white/10">
               <div className="flex justify-between items-start">
                 <div>

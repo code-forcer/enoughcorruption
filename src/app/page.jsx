@@ -2,13 +2,10 @@
 import React, { useState, useEffect } from "react";
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
-import HowItWorks from "@/components/HowItWorks";
 import Cta from "@/components/Cta";
-import Features from "@/components/Features";
 import About from "@/components/About";
 import Hero from "@/components/Hero";
 import HorizontalCardMarquee from "@/components/Slider";
-import TestimonialCarousel from "@/components/Testimnonials";
 
 const HomepageHeader = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -46,13 +43,7 @@ const HomepageHeader = () => {
         <About />
         {/* Horizontal Card Marquee */}
         <HorizontalCardMarquee />
-        {/* How It Works Section   */}
-        {/* <Features /> */}
-        {/* Testimonials Section */}
-        {/* <TestimonialCarousel /> */}
-        {/* How it work */}
-        {/* <HowItWorks /> */}
-        {/* Contact Section */}
+        {/* Call to Action */}
         <Cta />
         {/* Footer */}
         <Footer />

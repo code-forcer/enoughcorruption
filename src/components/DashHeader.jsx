@@ -8,6 +8,7 @@ import {
 } from "react-icons/md";
 
 export default function HomeDashboard({ dashboardData, activeQuestion, setActiveSection }) {
+  const isAdmin = dashboardData?.role === "admin"; // ✅ admin check
   return (
     <div className="space-y-8">
       {/* Header */}
@@ -17,60 +18,75 @@ export default function HomeDashboard({ dashboardData, activeQuestion, setActive
       </div>
       {/* Cards Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        {/* Total Users */}
+
+     {/* Admin-only section */}
+      {isAdmin && (
         <div className="bg-gradient-to-br from-blue-800/30 to-blue-900/50 border border-blue-700/30 rounded-xl p-6 shadow-lg hover:shadow-xl transition-all">
-          <div className="flex items-center justify-between mb-4">
-            <MdPeople className="w-10 h-10 text-blue-400" />
+          <div className="mb-4">
+            <div className="w-12 h-12 rounded-xl bg-white flex items-center justify-center">
+              <MdPeople className="w-10 h-10 text-blue-600" />
+            </div>
           </div>
           <p className="text-gray-400 text-sm mb-1">Total Users</p>
           <p className="text-3xl font-bold text-white">
             {dashboardData?.stats?.users || 0}
           </p>
         </div>
+      )}
         {/* Active Polls */}
         <div className="bg-gradient-to-br from-green-800/30 to-green-900/50 border border-green-700/30 rounded-xl p-6 shadow-lg hover:shadow-xl transition-all">
-          <div className="flex items-center justify-between mb-4">
-            <MdBarChart className="w-10 h-10 text-green-400" />
+          <div className="mb-4">
+            <div className="w-12 h-12 rounded-xl bg-white flex items-center justify-center">
+              <MdBarChart className="w-10 h-10 text-green-600" />
+            </div>
           </div>
           <p className="text-gray-400 text-sm mb-1">Active Polls</p>
           <p className="text-3xl font-bold text-white">
             {dashboardData?.stats?.activePolls || 0}
           </p>
         </div>
+
         {/* Total Votes */}
         <div className="bg-gradient-to-br from-purple-800/30 to-purple-900/50 border border-purple-700/30 rounded-xl p-6 shadow-lg hover:shadow-xl transition-all">
-          <div className="flex items-center justify-between mb-4">
-            <MdTrendingUp className="w-10 h-10 text-purple-400" />
+          <div className="mb-4">
+            <div className="w-12 h-12 rounded-xl bg-white flex items-center justify-center">
+              <MdTrendingUp className="w-10 h-10 text-purple-600" />
+            </div>
           </div>
           <p className="text-gray-400 text-sm mb-1">Total Votes</p>
           <p className="text-3xl font-bold text-white">
             {dashboardData?.stats?.totalVotes || 0}
           </p>
         </div>
+
         {/* Total Selections */}
         <div className="bg-gradient-to-br from-orange-800/30 to-orange-900/50 border border-orange-700/30 rounded-xl p-6 shadow-lg hover:shadow-xl transition-all">
-          <div className="flex items-center justify-between mb-4">
-            <MdDescription className="w-10 h-10 text-orange-400" />
+          <div className="mb-4">
+            <div className="w-12 h-12 rounded-xl bg-white flex items-center justify-center">
+              <MdDescription className="w-10 h-10 text-orange-600" />
+            </div>
           </div>
           <p className="text-gray-400 text-sm mb-1">Total Selections</p>
           <p className="text-3xl font-bold text-white">
             {dashboardData?.stats?.totalSelections || 0}
           </p>
         </div>
+
       </div>
+
       {/* Active Question Card */}
       {activeQuestion && (
         <div className="bg-gradient-to-br from-blue-500/10 to-purple-500/10 border border-blue-500/30 rounded-xl p-6 shadow-lg">
-          <h3 className="text-xl font-bold text-white mb-2">Active Question</h3>
+          <h3 className="text-xl font-bold text-white mb-2">Active Question | Headlines</h3>
           <h2 className="text-white text-lg italic">{activeQuestion.text}</h2>
 
           <span className="text-white text-sm">
             {activeQuestion.pubDate
               ? new Date(activeQuestion.pubDate).toLocaleDateString("en-US", {
-                  month: "short",
-                  day: "numeric",
-                  year: "numeric",
-                })
+                month: "short",
+                day: "numeric",
+                year: "numeric",
+              })
               : "No date"}
           </span>
           <div className="mt-4 flex flex-wrap gap-3">

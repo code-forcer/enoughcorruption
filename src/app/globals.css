@@ -179,3 +179,9 @@ code {
     font-size: 18px;
   }
 }
+@media print {
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+}

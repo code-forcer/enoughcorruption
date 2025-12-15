@@ -5,52 +5,23 @@ import {
   Home,
   BarChart3,
   Users,
-  Settings,
   FileText,
-  LogOut,
-  Share2,
-  Download,
   TrendingUp,
   AlertCircle,
-  Camera,
 } from "lucide-react";
-import {
-  PieChart,
-  Pie,
-  Cell,
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-} from "recharts";
 import {
   FaUserShield
 } from "react-icons/fa";
-import {
-  MdMenu,
-  MdClose,
-  MdHome,
-  MdInfo,
-  MdMail,
-  MdNotifications, // plural
-  MdPerson,
-  MdKeyboardArrowDown, // correct name
-  MdLogout,
-  MdRocketLaunch,
-} from "react-icons/md";
-
+import AppHeader from "@/components/AppHeader";
 import ContactsManagement from "@/components/ContactManagement";
-
 import { usePathname } from "next/navigation";
 import HomeDashboard from "@/components/DashHeader";
 import VoteSection from "@/components/VoteSection";
 import PollResults from "@/components/ResultsSection";
 import BackendStats from "@/components/BackendStats";
-
 import AdminSection from "@/components/AdminSection";
+import GFooter from "@/components/GlobalFooter";
+import { useMemo } from "react";
 
 const UnifiedDashboard = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -69,6 +40,18 @@ const UnifiedDashboard = () => {
   const [isClient, setIsClient] = useState(false);
   const [user, setUser] = useState(null);
   const pathname = usePathname();
+  // Guest controls
+  const token =
+    typeof window !== "undefined"
+      ? localStorage.getItem("token")
+      : null;
+
+  const isGuest = !token;
+  // load helper:
+  const getToken = () => {
+    if (typeof window === "undefined") return null;
+    return localStorage.getItem("token");
+  };
 
   //polls change
   // ========= STATE FOR NEXT / PREVIOUS POLL =========
@@ -98,7 +81,7 @@ const UnifiedDashboard = () => {
       }
     }
   }, []);
-  const isAdmin = user?.role === "admin";
+
   // ========= NEXT POLL =========
   const nextPoll = () => {
     if (!allQuestions || allQuestions.length === 0) return;
@@ -189,11 +172,13 @@ const UnifiedDashboard = () => {
     }
   }, [activeQuestion]);
 
-  const getToken = () => localStorage.getItem("token");
+
   const loadDashboard = async () => {
     try {
       const res = await fetch(`${API}/api/dashboard`, {
-        headers: { Authorization: `Bearer ${getToken()}` },
+        headers: token
+          ? { Authorization: `Bearer ${token}` }
+          : {}, // 👈 GUEST = NO AUTH HEADER
       });
       const data = await res.json();
       setDashboardData(data);
@@ -212,20 +197,28 @@ const UnifiedDashboard = () => {
 
   const loadQuestions = async () => {
     try {
+      const token = getToken();
+
       const res = await fetch(`${API}/api/questions`, {
-        headers: { Authorization: `Bearer ${getToken()}` },
+        headers: token
+          ? { Authorization: `Bearer ${token}` }
+          : {}, // 👈 GUEST = NO AUTH HEADER
       });
+
+      if (!res.ok) {
+        throw new Error(`HTTP ${res.status}`);
+      }
+
       const data = await res.json();
 
-      // Shuffle the questions array randomly
       const shuffled = (data.data || []).sort(() => Math.random() - 0.5);
 
       setAllQuestions(shuffled);
-      setActiveQuestion(shuffled[0]); // Set first from shuffled array
-      setCurrentIndex(0); // Reset index
+      setActiveQuestion(shuffled[0] || null);
+      setCurrentIndex(0);
     } catch (error) {
       console.error("Error loading questions:", error);
-      setError("Failed to load questions");
+      setError("Welcome Guest, Failed to load questions");
     }
   };
 
@@ -237,7 +230,9 @@ const UnifiedDashboard = () => {
         : `${API}/api/results`;
 
       const res = await fetch(url, {
-        headers: { Authorization: `Bearer ${getToken()}` },
+        headers: token
+          ? { Authorization: `Bearer ${token}` }
+          : {}, // 👈 GUEST = NO AUTH HEADER
       });
 
       if (res.ok) {
@@ -267,44 +262,52 @@ const UnifiedDashboard = () => {
     setSelectedTerms(newSelected);
   };
 
-
   const submitVote = async () => {
-    if (selectedTerms.size === 0) return;
+    if (selectedTerms.size === 0 || !activeQuestion) return;
 
     setLoading(true);
+
     try {
+      const token = getToken();
+
+      const headers = {
+        "Content-Type": "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      };
+
       const res = await fetch(`${API}/api/vote`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${getToken()}`,
-        },
+        headers,
         body: JSON.stringify({
           terms: Array.from(selectedTerms),
           questionId: activeQuestion._id,
         }),
       });
+
       const data = await res.json();
 
-      if (res.ok) {
-        const votedKey = `voted_${activeQuestion._id}`;
-        localStorage.setItem(votedKey, "true");
-        setHasVoted(true);
-        setSelectedTerms(new Set());
-
-        // ✅ Reload both results AND dashboard **after vote is saved**
-        await Promise.all([loadResults(), loadDashboard()]);
-        setActiveSection("results");
-      } else {
-        setError(data.message || "Failed to submit vote");
+      if (!res.ok) {
+        throw new Error(data.message || "Vote failed");
       }
+
+      // ✅ Prevent double voting (guest + auth)
+      const votedKey = `voted_${activeQuestion._id}`;
+      localStorage.setItem(votedKey, "true");
+
+      setHasVoted(true);
+      setSelectedTerms(new Set());
+
+      await Promise.all([loadResults(), loadDashboard()]);
+      setActiveSection("results");
+
     } catch (err) {
       console.error(err);
-      setError("Network error");
+      setError(err.message || "Network error");
     } finally {
       setLoading(false);
     }
   };
+
 
   const createQuestion = async () => {
     if (!newQuestionText.trim()) {
@@ -399,24 +402,37 @@ const UnifiedDashboard = () => {
     alert("✅ CSV file downloaded!");
   };
 
-  const navItems = [
+  const baseNavItems = [
     { icon: Home, label: "Home", section: "home" },
     { icon: BarChart3, label: "Vote", section: "vote" },
     { icon: TrendingUp, label: "Results", section: "results" },
-    { icon: FileText, label: "Backend Stats", section: "backend" },
-    { icon: Settings, label: "Admin", section: "admin" },
-    { icon: FaUserShield, label: "Contact Management", section: "contacts" },
-
+    { icon: FileText, label: "Backend Stats", section: "backend" }
   ];
   // Add admin-only navigation items if user is admin
-  if (isAdmin) {
-    navItems.push({
-      icon: Users,
-      label: "Manage Contacts",
-      section: "contacts",
-      adminOnly: true
-    });
-  }
+  const isAdmin = dashboardData?.role === "admin";
+
+  const navItems = useMemo(() => {
+    return [
+      ...baseNavItems,
+      ...(isAdmin
+        ? [
+          {
+            icon: Users,
+            label: "Admin",
+            section: "admin",
+            adminOnly: true,
+          },
+          {
+            icon: FaUserShield,
+            label: "Contact Management",
+            section: "contacts",
+            adminOnly: true,
+          },
+        ]
+        : []),
+    ];
+  }, [isAdmin]);
+
   // Chart colors
   const COLORS = [
     "#EF4444",
@@ -454,137 +470,148 @@ const UnifiedDashboard = () => {
 
     return clone;
   };
-  // PDF Export with better library detection
-  const exportToPDF = async () => {
-    try {
-      // Better library detection with longer timeout
-      let attempts = 0;
-      const maxAttempts = 50; // 10 seconds total
+  
+  // PDF Export - NO WHITE BORDERS
+const exportToPDF = async () => {
+  try {
+    // Better library detection with longer timeout
+    let attempts = 0;
+    const maxAttempts = 50; // 10 seconds total
 
-      while (attempts < maxAttempts) {
-        if (window.domtoimage && window.jspdf) {
-          break; // Both libraries loaded!
-        }
-        await new Promise(resolve => setTimeout(resolve, 200));
-        attempts++;
+    while (attempts < maxAttempts) {
+      if (window.domtoimage && window.jspdf) {
+        break; // Both libraries loaded!
       }
-
-      // Debug: Log what we found
-      console.log('domtoimage:', typeof window.domtoimage);
-      console.log('jspdf:', typeof window.jspdf);
-
-      if (!window.domtoimage || !window.jspdf) {
-        alert("❌ Libraries failed to load. Please:\n1. Refresh the page\n2. Wait 5 seconds\n3. Try export again");
-        return;
-      }
-
-      const element = document.getElementById("results-content");
-      if (!element) {
-        alert("❌ Could not find results to export");
-        return;
-      }
-
-      // Show loading
-      const loadingDiv = document.createElement('div');
-      loadingDiv.id = 'pdf-loading';
-      loadingDiv.innerHTML = '<div style="position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,0.9);color:white;padding:20px 40px;border-radius:10px;z-index:9999;font-family:sans-serif;font-size:16px;">Generating PDF...<br/><small>This may take a few seconds</small></div>';
-      document.body.appendChild(loadingDiv);
-
-      // Generate image
-      const dataUrl = await window.domtoimage.toPng(element, {
-        quality: 0.95,
-        bgcolor: '#0f172a',
-      });
-
-      // Create PDF
-      const { jsPDF } = window.jspdf;
-      const pdf = new jsPDF({
-        orientation: "portrait",
-        unit: "px",
-        format: "a4",
-      });
-
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = pdf.internal.pageSize.getHeight();
-
-      pdf.addImage(dataUrl, "PNG", 0, 0, pdfWidth, pdfHeight);
-
-      // Cleanup
-      document.body.removeChild(loadingDiv);
-
-      // Download
-      pdf.save(`poll-results-${Date.now()}.pdf`);
-      alert("✅ PDF downloaded successfully!");
-
-    } catch (error) {
-      console.error("PDF export error:", error);
-      const loadingDiv = document.getElementById('pdf-loading');
-      if (loadingDiv) document.body.removeChild(loadingDiv);
-      alert("❌ Export failed: " + error.message);
+      await new Promise(resolve => setTimeout(resolve, 200));
+      attempts++;
     }
-  };
 
-  // Image Download with better library detection
-  const downloadAsImage = async () => {
-    try {
-      // Better library detection
-      let attempts = 0;
-      const maxAttempts = 50;
+    // Debug: Log what we found
+    console.log('domtoimage:', typeof window.domtoimage);
+    console.log('jspdf:', typeof window.jspdf);
 
-      while (attempts < maxAttempts) {
-        if (window.domtoimage) {
-          break;
-        }
-        await new Promise(resolve => setTimeout(resolve, 200));
-        attempts++;
-      }
-
-      console.log('domtoimage:', typeof window.domtoimage);
-
-      if (!window.domtoimage) {
-        alert("❌ Library failed to load. Please:\n1. Refresh the page\n2. Wait 5 seconds\n3. Try export again");
-        return;
-      }
-
-      const element = document.getElementById("results-content");
-      if (!element) {
-        alert("❌ Could not find results to export");
-        return;
-      }
-
-      // Show loading
-      const loadingDiv = document.createElement('div');
-      loadingDiv.id = 'image-loading';
-      loadingDiv.innerHTML = '<div style="position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,0.9);color:white;padding:20px 40px;border-radius:10px;z-index:9999;font-family:sans-serif;font-size:16px;">Generating Image...<br/><small>This may take a few seconds</small></div>';
-      document.body.appendChild(loadingDiv);
-
-      // Generate image
-      const blob = await window.domtoimage.toBlob(element, {
-        quality: 0.95,
-        bgcolor: '#0f172a',
-      });
-
-      // Download
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `poll-results-${Date.now()}.png`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      window.URL.revokeObjectURL(url);
-
-      // Cleanup
-      document.body.removeChild(loadingDiv);
-      alert("✅ Image downloaded successfully!");
-
-    } catch (error) {
-      console.error("Image export error:", error);
-      const loadingDiv = document.getElementById('image-loading');
-      if (loadingDiv) document.body.removeChild(loadingDiv);
-      alert("❌ Export failed: " + error.message);
+    if (!window.domtoimage || !window.jspdf) {
+      alert("❌ Libraries failed to load. Please:\n1. Refresh the page\n2. Wait 5 seconds\n3. Try export again");
+      return;
     }
-  };
+
+    const element = document.getElementById("results-content");
+    if (!element) {
+      alert("❌ Could not find results to export");
+      return;
+    }
+
+    // Show loading
+    const loadingDiv = document.createElement('div');
+    loadingDiv.id = 'pdf-loading';
+    loadingDiv.innerHTML = '<div style="position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,0.9);color:white;padding:20px 40px;border-radius:10px;z-index:9999;font-family:sans-serif;font-size:16px;">Generating PDF...<br/><small>This may take a few seconds</small></div>';
+    document.body.appendChild(loadingDiv);
+
+    // Get element dimensions BEFORE generating image
+    const elementWidth = element.offsetWidth;
+    const elementHeight = element.offsetHeight;
+
+    // Generate image
+    const dataUrl = await window.domtoimage.toPng(element, {
+      quality: 0.95,
+      bgcolor: '#0f172a',
+      width: elementWidth,
+      height: elementHeight,
+    });
+
+    // Create PDF with EXACT dimensions of the content (no borders!)
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF({
+      orientation: elementWidth > elementHeight ? "landscape" : "portrait",
+      unit: "px",
+      format: [elementWidth, elementHeight], // Custom size = NO WHITE BORDERS
+    });
+
+    // Add image at 0,0 with exact dimensions
+    pdf.addImage(dataUrl, "PNG", 0, 0, elementWidth, elementHeight);
+
+    // Cleanup
+    document.body.removeChild(loadingDiv);
+
+    // Download
+    pdf.save(`poll-results-${Date.now()}.pdf`);
+    alert("✅ PDF downloaded successfully!");
+
+  } catch (error) {
+    console.error("PDF export error:", error);
+    const loadingDiv = document.getElementById('pdf-loading');
+    if (loadingDiv) document.body.removeChild(loadingDiv);
+    alert("❌ Export failed: " + error.message);
+  }
+};
+
+// Image Download - NO WHITE BORDERS
+const downloadAsImage = async () => {
+  try {
+    // Better library detection
+    let attempts = 0;
+    const maxAttempts = 50;
+
+    while (attempts < maxAttempts) {
+      if (window.domtoimage) {
+        break;
+      }
+      await new Promise(resolve => setTimeout(resolve, 200));
+      attempts++;
+    }
+
+    console.log('domtoimage:', typeof window.domtoimage);
+
+    if (!window.domtoimage) {
+      alert("❌ Library failed to load. Please:\n1. Refresh the page\n2. Wait 5 seconds\n3. Try export again");
+      return;
+    }
+
+    const element = document.getElementById("results-content");
+    if (!element) {
+      alert("❌ Could not find results to export");
+      return;
+    }
+
+    // Show loading
+    const loadingDiv = document.createElement('div');
+    loadingDiv.id = 'image-loading';
+    loadingDiv.innerHTML = '<div style="position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,0.9);color:white;padding:20px 40px;border-radius:10px;z-index:9999;font-family:sans-serif;font-size:16px;">Generating Image...<br/><small>This may take a few seconds</small></div>';
+    document.body.appendChild(loadingDiv);
+
+    // Get exact dimensions
+    const elementWidth = element.offsetWidth;
+    const elementHeight = element.offsetHeight;
+
+    // Generate image with exact dimensions
+    const blob = await window.domtoimage.toBlob(element, {
+      quality: 0.95,
+      bgcolor: '#0f172a',
+      width: elementWidth,
+      height: elementHeight,
+    });
+
+    // Download
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `poll-results-${Date.now()}.png`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+
+    // Cleanup
+    document.body.removeChild(loadingDiv);
+    alert("✅ Image downloaded successfully!");
+
+  } catch (error) {
+    console.error("Image export error:", error);
+    const loadingDiv = document.getElementById('image-loading');
+    if (loadingDiv) document.body.removeChild(loadingDiv);
+    alert("❌ Export failed: " + error.message);
+  }
+};
   const shareToSocial = (platform) => {
     const questionText = activeQuestion?.text || "Poll Results";
     const topTerm = dashboardData?.top5?.[0]?.term || "N/A";
@@ -647,164 +674,39 @@ const UnifiedDashboard = () => {
   };
   return (
     <div className="min-h-screen bg-gray-900 text-gray-300">
-      {/* Header */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-gray-900/95 backdrop-blur-lg border-b border-white/10 shadow-lg">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16 sm:h-20">
-            {/* Left Section: Logo + Mobile Menu */}
-            <div className="flex items-center gap-4">
-              <button
-                onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-                className="lg:hidden p-2 rounded-lg hover:bg-white/10"
-              >
-                <MdMenu className="w-6 h-6 text-white" />
-              </button>
-
-              <div className="flex items-center gap-3">
-                <div className="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 shadow-lg">
-                  <img
-                    src="/trump_logo.jpeg"
-                    alt="This Is Not Normal Logo"
-                    className="w-full h-full object-contain"
-                  />
-                </div>
-                <div className="hidden lg:block">
-                  <h4 className="font-black text-white tracking-tight">
-                    This Is Not Normal
-                  </h4>
-                  <p className="text-xs text-blue-300">Outrage, crowdsourced</p>
-                </div>
-
-              </div>
-            </div>
-
-            {/* Desktop Nav */}
-            <nav className="hidden lg:flex items-center gap-1">
-              {navItems.map((item) => (
-                <button
-                  key={item.section}
-                  onClick={() => setActiveSection(item.section)}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold text-sm transition-all ${activeSection === item.section
-                    ? "bg-blue-600 text-white shadow-lg"
-                    : "text-gray-300 hover:text-white hover:bg-white/10"
-                    }`}
-                >
-                  <item.icon className="w-5 h-5" />
-                  <span>{item.label}</span>
-                </button>
-              ))}
-            </nav>
-
-            {/* Right Section: Notification + Profile */}
-            <div className="flex items-center gap-2 sm:gap-3 relative">
-              {/* Notification Button */}
-              <button className="relative p-2 rounded-lg hover:bg-white/10">
-                <MdNotifications className="w-5 h-5 text-gray-300" />
-              </button>
-
-              {/* Profile */}
-              <div className="relative">
-                <button
-                  onClick={() => setIsProfileOpen(!isProfileOpen)}
-                  className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-white/10"
-                >
-                  <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center">
-                    <MdPerson className="w-5 h-5 text-white" />
-                  </div>
-                  <MdKeyboardArrowDown className="w-4 h-4 text-gray-300  sm:block" />
-                </button>
-
-                {/* Profile Dropdown */}
-                {isProfileOpen && dashboardData && (
-                  <>
-                    {/* Overlay */}
-                    <div
-                      className="fixed inset-0 z-40 bg-black/50"
-                      onClick={() => setIsProfileOpen(false)}
-                    ></div>
-
-                    <div className="absolute right-0 mt-2 w-80 bg-gray-800 rounded-lg shadow-2xl border border-white/10 py-4 z-50">
-                      {/* User Info */}
-                      <div className="px-4 py-2 border-b border-white/10">
-                        <p className="text-sm font-semibold text-white">
-                          {dashboardData.fullname} ({dashboardData.role})
-                        </p>
-                        <p className="text-xs text-gray-400">{dashboardData.email}</p>
-                        <p className="text-xs text-gray-400">
-                          Site ID: {dashboardData.siteid}
-                        </p>
-                      </div>
-
-                      {/* Logout */}
-                      <button
-                        onClick={handleLogOut}
-                        className="w-full flex items-center gap-2 px-4 py-2 hover:bg-white/10 text-red-400 hover:text-red-300"
-                      >
-                        <MdLogout className="w-4 h-4" />
-                        <span className="text-sm">Logout</span>
-                      </button>
-                    </div>
-                  </>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-      </header>
-      {/* Mobile Sidebar */}
-      {isSidebarOpen && (
-        <>
-          <div
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 lg:hidden"
-            onClick={() => setIsSidebarOpen(false)}
-          />
-          <aside className="fixed top-0 left-0 h-full w-72 bg-gray-900 z-50 transform transition-transform duration-300 lg:hidden">
-            <div className="flex flex-col h-full">
-              <div className="flex items-center justify-between p-6 border-b border-white/10">
-                <h2 className="text-lg font-black text-white">This Is Not Normal</h2>
-                <button
-                  onClick={() => setIsSidebarOpen(false)}
-                  className="p-2 rounded-lg hover:bg-white/10"
-                >
-                  <X className="w-5 h-5 text-gray-300" />
-                </button>
-              </div>
-              <nav className="flex-1 overflow-y-auto p-4">
-                <div className="space-y-1">
-                  {navItems.map((item) => (
-                    <button
-                      key={item.section}
-                      onClick={() => {
-                        setActiveSection(item.section);
-                        setIsSidebarOpen(false);
-                      }}
-                      className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg font-semibold text-sm transition-all ${activeSection === item.section
-                        ? "bg-blue-600 text-white"
-                        : "text-gray-300 hover:text-white hover:bg-white/10"
-                        }`}
-                    >
-                      <item.icon className="w-5 h-5" />
-                      <span>{item.label}</span>
-                    </button>
-                  ))}
-                </div>
-              </nav>
-              <div className="p-4 border-t border-white/10">
-                <button
-                  onClick={handleLogOut}
-                  className="w-full flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg"
-                >
-                  <LogOut className="w-4 h-4" /> Logout
-                </button>
-              </div>
-            </div>
-          </aside>
-        </>
-      )}
+      {/* ================= HEADER ================= */}
+      <AppHeader
+        navItems={navItems}
+        isAdmin={isAdmin}   // ✅ passed
+        activeSection={activeSection}
+        setActiveSection={setActiveSection}
+        isSidebarOpen={isSidebarOpen}
+        setIsSidebarOpen={setIsSidebarOpen}
+        isProfileOpen={isProfileOpen}
+        setIsProfileOpen={setIsProfileOpen}
+        dashboardData={dashboardData}
+        handleLogOut={handleLogOut}
+      />
 
       {/* Main Content */}
       <main className="pt-20 sm:pt-24 pb-8 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
+          {/* Guest Controls */}
+          {isGuest && (
+            <div className="mb-6 p-4 rounded-lg bg-yellow-500/10 border border-yellow-500/30">
+              <p className="text-yellow-300 text-sm">
+                You are viewing as a guest. Login to manage polls.
+              </p>
+
+              <a
+                href="/login"
+                className="inline-block mt-3 px-4 py-2 bg-yellow-500 text-black rounded-lg font-semibold"
+              >
+                Login / Register
+              </a>
+            </div>
+          )}
+          {/* Guest Controls */}
           {/* Error Display */}
           {error && (
             <div className="mb-6 bg-red-500/10 border border-red-500/30 rounded-lg p-4 flex items-start gap-3">
@@ -830,7 +732,7 @@ const UnifiedDashboard = () => {
                 setActiveSection={setActiveSection}
               />
             )}
-
+            {/* Vote section */}
             {activeSection === "vote" && (
               <VoteSection
                 activeQuestion={activeQuestion}
@@ -846,13 +748,14 @@ const UnifiedDashboard = () => {
                 loading={loading}
               />
             )}
-
+            {/* Result section */}
             {activeSection === "results" && (
               <PollResults
                 activeQuestion={activeQuestion}
                 resultsData={resultsData}
                 dashboardData={dashboardData}
                 isClient={isClient}
+                animationClass={animationClass}
                 exportToCSV={exportToCSV}
                 exportToPDF={exportToPDF}
                 downloadAsImage={downloadAsImage}
@@ -860,16 +763,12 @@ const UnifiedDashboard = () => {
               />
             )}
           </div>
-
+          {/* Backend stats */}
           {activeSection === "backend" && (
             <BackendStats resultsData={resultsData} />
           )}
-
-
-          {/* Existing sections like home, vote, results, backend, admin... */}
-
           {/* CONTACTS SECTION - Add this */}
-          {activeSection === "contacts" && (
+          {activeSection === "contacts" && isAdmin && (
             <div className="space-y-6">
               <div className="mb-6">
                 <h1 className="text-3xl font-bold text-white mb-2">Contact Management</h1>
@@ -878,11 +777,7 @@ const UnifiedDashboard = () => {
               <ContactsManagement />
             </div>
           )}
-
-
-
-
-          {activeSection === "admin" && (
+          {activeSection === "admin" && isAdmin && (
             <AdminSection
               newQuestionText={newQuestionText}
               setNewQuestionText={setNewQuestionText}
@@ -895,6 +790,7 @@ const UnifiedDashboard = () => {
           )}
         </div>
       </main>
+      <GFooter />
     </div>
   );
 };

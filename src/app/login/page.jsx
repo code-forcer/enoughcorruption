@@ -110,7 +110,7 @@ export default function LoginPage() {
       <section className="pt-32 pb-20 px-4 sm:px-6 lg:px-8 bg-black">
         <div className="max-w-4xl mx-auto text-center">
           <h1 className="text-4xl sm:text-6xl font-black mb-4 bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
-  Welcome Back
+  Welcome Back Admin
 </h1>
 <p className="text-lg text-gray-300 max-w-2xl mx-auto">
   Access portal to manage polls or continue to vote and view live results.
@@ -130,7 +130,7 @@ export default function LoginPage() {
             <div className="space-y-6">
               <div>
                 <label className="block text-sm font-semibold text-gray-300 mb-2">
-             <code className="text-red-600">If Admin?</code> Email Address
+             Email Address
                 </label>
                 <input
                   type="email"
@@ -145,7 +145,7 @@ export default function LoginPage() {
 
               <div>
                 <label className="block text-sm font-semibold text-gray-300 mb-2">
-                 <code className="text-red-600">If Admin?</code> Password
+                 Password
                 </label>
                 <div className="relative">
                   <input
@@ -181,22 +181,6 @@ export default function LoginPage() {
                   Forgot Password?
                 </a>
               </div>
-              <code className="text-green-500 font-bold text-lg">IF NOT ADMIN:</code>
-{/* Visitor CTA */}
-<button
-  type="button"
-  onClick={() => {
-    window.location.href = "/dashboard";
-  }}
-  className="w-full mb-4 py-3 flex items-center justify-center gap-3 
-             bg-white text-black rounded-lg font-bold text-lg
-             shadow-lg hover:bg-gray-100 transition-all"
->
-
-  <FaVoteYea className="w-5 h-5" />
-  Vote & View Results
-</button>
-<hr className="text-white" />
               <button
                 onClick={handleSubmit}
                 disabled={loading}

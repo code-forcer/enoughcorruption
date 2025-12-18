@@ -40,7 +40,7 @@ export default function Hero() {
           {/* CTA Button */}
           <div className="flex justify-center">
             <a
-              href="/login"
+              href="/dashboard"
               className="inline-flex items-center justify-center gap-2 px-10 py-4 bg-gradient-to-r from-blue-600 to-cyan-600 rounded-xl font-bold text-xl shadow-2xl shadow-blue-500/50 hover:shadow-blue-500/70 transform hover:scale-105 transition-all"
             >
               <Rocket className="w-6 h-6" />

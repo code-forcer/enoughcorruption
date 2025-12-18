@@ -70,9 +70,9 @@ export default function Header() {
                 />
               </div>
               <div>
-                <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight">
+                <h3 className="text-xl sm:text-2xl font-black text-white tracking-tight">
                   This Is Not Normal
-                </h1>
+                </h3>
                 <p className="text-xs text-blue-300">Outrage, crowdsourced</p>
               </div>
             </a>
@@ -95,7 +95,7 @@ export default function Header() {
             <div className="flex items-center gap-3">
               {/* CTA */}
               <a
-                href="/login"
+                href="/dashboard"
                 className="hidden sm:flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 rounded-lg font-bold text-sm text-white shadow-lg shadow-blue-500/30 hover:shadow-blue-500/50 transition-all transform hover:scale-105"
               >
                 <MdRocketLaunch size={18} />
@@ -188,7 +188,7 @@ export default function Header() {
                 Fill your outrages in minutes and make your voice heard.
               </p>
               <a
-                href="/login"
+                href="/dashboard"
                 onClick={closeSidebar}
                 className="flex items-center justify-center gap-2 w-full px-4 py-3 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 rounded-lg font-bold text-white shadow-lg shadow-blue-500/30 transition-all"
               >

@@ -10,8 +10,6 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  LineChart,
-  Line,
   RadarChart,
   PolarGrid,
   PolarAngleAxis,
@@ -65,7 +63,7 @@ const TrophyIcon = ({ size = 20, className = "" }) => (
 
 // Enhanced color palette
 const COLORS = [
-  '#ef4444', '#f97316', '#eab308', '#22c55e', '#3b82f6', 
+  '#ef4444', '#f97316', '#eab308', '#22c55e', '#3b82f6',
   '#8b5cf6', '#ec4899', '#06b6d4', '#f43f5e', '#14b8a6',
   '#a855f7', '#f59e0b', '#10b981', '#6366f1', '#84cc16'
 ];
@@ -98,8 +96,7 @@ const PollResults = ({
   dashboardData,
   isClient,
   exportToCSV,
-  exportToPDF,
-  downloadAsImage,
+ prepareCleanReport,
   shareToSocial,
 }) => {
   // Prepare data for radar chart (top 8)
@@ -112,12 +109,15 @@ const PollResults = ({
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-slate-900 to-gray-900">
       {/* Hero Header Section */}
-      <div className="relative overflow-hidden bg-gradient-to-r from-blue-600/20 via-purple-600/20 to-pink-600/20 border-b border-white/10">
+      <div className="relative bg-gradient-to-r from-blue-600/20 via-purple-600/20 to-pink-600/20 border-b border-white/10">
+        {/* Background Pattern */}
         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48cGF0dGVybiBpZD0iZ3JpZCIgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBwYXR0ZXJuVW5pdHM9InVzZXJTcGFjZU9uVXNlIj48cGF0aCBkPSJNIDQwIDAgTCAwIDAgMCA0MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJyZ2JhKDI1NSwgMjU1LCAyNTUsIDAuMDUpIiBzdHJva2Utd2lkdGg9IjEiLz48L3BhdHRlcm4+PC9kZWZzPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JpZCkiLz48L3N2Zz4=')] opacity-30"></div>
-        
+
+        {/* Header Content */}
         <div className="relative px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
           <div className="max-w-7xl mx-auto">
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+
               {/* Title Section */}
               <div className="space-y-3">
                 <div className="flex items-center gap-3">
@@ -133,7 +133,9 @@ const PollResults = ({
 
               {/* Action Buttons */}
               {isClient && resultsData && (
-                <div className="flex flex-wrap gap-3">
+                <div className="flex flex-wrap gap-3 relative z-10">
+
+                  {/* Export CSV */}
                   <button
                     onClick={exportToCSV}
                     className="group flex items-center gap-2 px-5 py-3 bg-emerald-600 hover:bg-emerald-700 text-white transition-all font-semibold shadow-lg hover:shadow-emerald-500/50 hover:scale-105 active:scale-95"
@@ -142,21 +144,14 @@ const PollResults = ({
                     <span className="hidden sm:inline">Export CSV</span>
                   </button>
 
+                  {/* Export PDF */}
                   <button
-                    onClick={exportToPDF}
-                    className="group flex items-center gap-2 px-5 py-3 bg-red-600 hover:bg-red-700 text-white  transition-all font-semibold shadow-lg hover:shadow-red-500/50 hover:scale-105 active:scale-95"
+                    onClick={prepareCleanReport}
+                    className="group flex items-center gap-2 px-5 py-3 bg-red-600 hover:bg-red-700 text-white transition-all font-semibold shadow-lg hover:shadow-red-500/50 hover:scale-105 active:scale-95"
                   >
                     <DownloadIcon size={20} />
                     <span className="hidden sm:inline">Export PDF</span>
-                  </button>
-
-                  <button
-                    onClick={downloadAsImage}
-                    className="group flex items-center gap-2 px-5 py-3 bg-purple-600 hover:bg-purple-700 text-white transition-all font-semibold shadow-lg hover:shadow-purple-500/50 hover:scale-105 active:scale-95"
-                  >
-                    <CameraIcon size={20} />
-                    <span className="hidden sm:inline">Save Image</span>
-                  </button>
+                  </button>            
 
                   {/* Share Dropdown */}
                   <div className="relative group">
@@ -165,7 +160,9 @@ const PollResults = ({
                       <span className="hidden sm:inline">Share</span>
                     </button>
 
-                    <div className="absolute right-0 mt-2 w-56 bg-gray-800/95 backdrop-blur-xl border border-white/20 shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 overflow-hidden">
+                    <div className="absolute right-0 mt-2 w-56 max-h-[70vh] overflow-y-auto bg-gray-800/95 backdrop-blur-xl border border-white/20 shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 rounded-lg">
+
+                      {/* Facebook */}
                       <button
                         onClick={() => shareToSocial('facebook')}
                         className="flex items-center gap-3 w-full px-4 py-3 hover:bg-blue-600/20 text-white transition text-left"
@@ -176,6 +173,7 @@ const PollResults = ({
                         <span className="font-medium">Facebook</span>
                       </button>
 
+                      {/* Twitter/X */}
                       <button
                         onClick={() => shareToSocial('twitter')}
                         className="flex items-center gap-3 w-full px-4 py-3 hover:bg-sky-600/20 text-white transition text-left"
@@ -186,6 +184,7 @@ const PollResults = ({
                         <span className="font-medium">X (Twitter)</span>
                       </button>
 
+                      {/* Instagram */}
                       <button
                         onClick={() => shareToSocial('instagram')}
                         className="flex items-center gap-3 w-full px-4 py-3 hover:bg-pink-600/20 text-white transition text-left"
@@ -202,6 +201,7 @@ const PollResults = ({
                         </svg>
                         <span className="font-medium">Instagram</span>
                       </button>
+
                     </div>
                   </div>
                 </div>
@@ -213,7 +213,7 @@ const PollResults = ({
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12 space-y-8" id="results-content">
-        
+
         {/* Key Metrics Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {/* Total Votes Card */}
@@ -311,8 +311,8 @@ const PollResults = ({
                     ))}
                   </Pie>
                   <Tooltip content={<CustomTooltip />} />
-                  <Legend 
-                    verticalAlign="bottom" 
+                  <Legend
+                    verticalAlign="bottom"
                     height={36}
                     formatter={(value) => <span className="text-gray-300 text-sm">{value}</span>}
                   />
@@ -331,12 +331,12 @@ const PollResults = ({
               <ResponsiveContainer width="100%" height={380}>
                 <RadarChart data={radarData}>
                   <PolarGrid stroke="#374151" />
-                  <PolarAngleAxis 
-                    dataKey="term" 
+                  <PolarAngleAxis
+                    dataKey="term"
                     tick={{ fill: '#9CA3AF', fontSize: 12 }}
                   />
-                  <PolarRadiusAxis 
-                    angle={90} 
+                  <PolarRadiusAxis
+                    angle={90}
                     domain={[0, 'auto']}
                     tick={{ fill: '#9CA3AF' }}
                   />
@@ -374,14 +374,14 @@ const PollResults = ({
                   stroke="#9CA3AF"
                   tick={{ fill: '#9CA3AF', fontSize: 11 }}
                 />
-                <YAxis 
-                  stroke="#9CA3AF" 
+                <YAxis
+                  stroke="#9CA3AF"
                   tick={{ fill: '#9CA3AF' }}
                   label={{ value: 'Vote Count', angle: -90, position: 'insideLeft', fill: '#9CA3AF' }}
                 />
                 <Tooltip content={<CustomTooltip />} />
-                <Bar 
-                  dataKey="count" 
+                <Bar
+                  dataKey="count"
                   radius={[10, 10, 0, 0]}
                   maxBarSize={60}
                 >
@@ -397,110 +397,136 @@ const PollResults = ({
           </div>
         )}
 
-        {/* Top 5 Rankings */}
-        <div className="bg-white/5 backdrop-blur-sm border border-white/10  p-8">
-          <div className="flex items-center gap-3 mb-8">
-            <div className="p-2 bg-yellow-500/20 ">
-              <TrophyIcon size={20} className="text-yellow-400" />
-            </div>
-            <h3 className="text-3xl font-bold text-white">Top 5 Rankings</h3>
-          </div>
-          <div className="space-y-5">
-            {dashboardData?.top5?.length > 0 ? (
-              dashboardData.top5.map((item, i) => {
-                const colorSchemes = [
-                  {
-                    bg: 'from-red-500/20 to-red-600/5',
-                    border: 'border-red-500/40',
-                    text: 'text-red-400',
-                    glow: 'shadow-red-500/20',
-                    icon: 'bg-red-500/20',
-                    bar: 'bg-gradient-to-r from-red-500 to-red-600'
-                  },
-                  {
-                    bg: 'from-orange-500/20 to-orange-600/5',
-                    border: 'border-orange-500/40',
-                    text: 'text-orange-400',
-                    glow: 'shadow-orange-500/20',
-                    icon: 'bg-orange-500/20',
-                    bar: 'bg-gradient-to-r from-orange-500 to-orange-600'
-                  },
-                  {
-                    bg: 'from-yellow-500/20 to-yellow-600/5',
-                    border: 'border-yellow-500/40',
-                    text: 'text-yellow-400',
-                    glow: 'shadow-yellow-500/20',
-                    icon: 'bg-yellow-500/20',
-                    bar: 'bg-gradient-to-r from-yellow-500 to-yellow-600'
-                  },
-                  {
-                    bg: 'from-green-500/20 to-green-600/5',
-                    border: 'border-green-500/40',
-                    text: 'text-green-400',
-                    glow: 'shadow-green-500/20',
-                    icon: 'bg-green-500/20',
-                    bar: 'bg-gradient-to-r from-green-500 to-green-600'
-                  },
-                  {
-                    bg: 'from-blue-500/20 to-blue-600/5',
-                    border: 'border-blue-500/40',
-                    text: 'text-blue-400',
-                    glow: 'shadow-blue-500/20',
-                    icon: 'bg-blue-500/20',
-                    bar: 'bg-gradient-to-r from-blue-500 to-blue-600'
-                  }
-                ];
-                const scheme = colorSchemes[i];
-                
-                return (
-                  <div 
-                    key={item.term} 
-                    className={`group relative bg-gradient-to-br ${scheme.bg} border ${scheme.border}  p-6 hover:scale-[1.02] transition-all duration-300 ${scheme.glow} hover:shadow-xl`}
-                  >
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="flex items-center gap-4">
-                        <div className={`flex items-center justify-center w-14 h-14 ${scheme.icon}  border-2 ${scheme.border} font-black text-2xl text-white shadow-lg`}>
-                          {i + 1}
-                        </div>
-                        <div>
-                          <span className="text-xl font-bold text-white block mb-1">
-                            {item.term}
-                          </span>
-                          <span className="text-sm text-gray-400">
-                            Rank #{i + 1}
-                          </span>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <p className={`text-4xl font-black ${scheme.text} mb-1`}>
-                          {item.percentage}%
-                        </p>
-                        <p className="text-sm text-gray-400 font-medium">
-                          {item.count.toLocaleString()} votes
-                        </p>
-                      </div>
-                    </div>
-                    
-                    <div className="relative h-3 bg-black/30  overflow-hidden">
-                      <div
-                        className={`absolute top-0 left-0 h-full ${scheme.bar} transition-all duration-1000 ease-out shadow-lg`}
-                        style={{ width: `${item.percentage}%` }}
-                      >
-                        <div className="absolute inset-0 bg-white/20 animate-pulse"></div>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })
-            ) : (
-              <div className="text-center py-12">
-                <ChartIcon size={48} className="text-gray-600 mx-auto mb-4" />
-                <p className="text-gray-400 text-lg">No votes recorded yet</p>
-              </div>
-            )}
-          </div>
-        </div>
+       {/* Top 5 Rankings */}
+<div className="bg-white/5 backdrop-blur-sm border border-white/10 p-4 sm:p-8">
+  <div className="flex items-center gap-3 mb-6 sm:mb-8">
+    <div className="p-2 bg-yellow-500/20">
+      <TrophyIcon size={20} className="text-yellow-400" />
+    </div>
+    <h3 className="text-2xl sm:text-3xl font-bold text-white">Top 5 Rankings</h3>
+  </div>
+  <div className="space-y-4 sm:space-y-5">
+    {dashboardData?.top5?.length > 0 ? (
+      dashboardData.top5.map((item, i) => {
+        const colorSchemes = [
+          {
+            bg: 'from-red-500/20 to-red-600/5',
+            border: 'border-red-500/40',
+            text: 'text-red-400',
+            glow: 'shadow-red-500/20',
+            icon: 'bg-red-500/20',
+            bar: 'bg-gradient-to-r from-red-500 to-red-600'
+          },
+          {
+            bg: 'from-orange-500/20 to-orange-600/5',
+            border: 'border-orange-500/40',
+            text: 'text-orange-400',
+            glow: 'shadow-orange-500/20',
+            icon: 'bg-orange-500/20',
+            bar: 'bg-gradient-to-r from-orange-500 to-orange-600'
+          },
+          {
+            bg: 'from-yellow-500/20 to-yellow-600/5',
+            border: 'border-yellow-500/40',
+            text: 'text-yellow-400',
+            glow: 'shadow-yellow-500/20',
+            icon: 'bg-yellow-500/20',
+            bar: 'bg-gradient-to-r from-yellow-500 to-yellow-600'
+          },
+          {
+            bg: 'from-green-500/20 to-green-600/5',
+            border: 'border-green-500/40',
+            text: 'text-green-400',
+            glow: 'shadow-green-500/20',
+            icon: 'bg-green-500/20',
+            bar: 'bg-gradient-to-r from-green-500 to-green-600'
+          },
+          {
+            bg: 'from-blue-500/20 to-blue-600/5',
+            border: 'border-blue-500/40',
+            text: 'text-blue-400',
+            glow: 'shadow-blue-500/20',
+            icon: 'bg-blue-500/20',
+            bar: 'bg-gradient-to-r from-blue-500 to-blue-600'
+          }
+        ];
+        const scheme = colorSchemes[i];
 
+        return (
+          <div
+            key={item.term}
+            className={`group relative bg-gradient-to-br ${scheme.bg} border ${scheme.border} rounded-lg p-4 sm:p-6 hover:scale-[1.01] sm:hover:scale-[1.02] transition-all duration-300 ${scheme.glow} hover:shadow-xl`}
+          >
+            {/* Desktop & Tablet Layout */}
+            <div className="hidden sm:flex items-center justify-between mb-4">
+              <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
+                <div className={`flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 ${scheme.icon} rounded-lg border-2 ${scheme.border} font-black text-xl sm:text-2xl text-white shadow-lg flex-shrink-0`}>
+                  {i + 1}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <span className="text-lg sm:text-xl font-bold text-white block mb-1 truncate">
+                    {item.term}
+                  </span>
+                  <span className="text-xs sm:text-sm text-gray-400">
+                    Rank #{i + 1}
+                  </span>
+                </div>
+              </div>
+              <div className="text-right ml-4 flex-shrink-0">
+                <p className={`text-3xl sm:text-4xl font-black ${scheme.text} mb-1`}>
+                  {item.percentage}%
+                </p>
+                <p className="text-xs sm:text-sm text-gray-400 font-medium">
+                  {item.count.toLocaleString()} votes
+                </p>
+              </div>
+            </div>
+
+            {/* Mobile Layout - Stacked */}
+            <div className="sm:hidden space-y-3 mb-3">
+              <div className="flex items-center gap-3">
+                <div className={`flex items-center justify-center w-12 h-12 ${scheme.icon} rounded-lg border-2 ${scheme.border} font-black text-xl text-white shadow-lg flex-shrink-0`}>
+                  {i + 1}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <span className="text-base font-bold text-white block mb-1 break-words">
+                    {item.term}
+                  </span>
+                  <span className="text-xs text-gray-400">
+                    Rank #{i + 1}
+                  </span>
+                </div>
+              </div>
+              <div className="flex items-center justify-between">
+                <p className={`text-3xl font-black ${scheme.text}`}>
+                  {item.percentage}%
+                </p>
+                <p className="text-sm text-gray-400 font-medium">
+                  {item.count.toLocaleString()} votes
+                </p>
+              </div>
+            </div>
+
+            {/* Progress Bar - All Screens */}
+            <div className="relative h-2.5 sm:h-3 bg-black/30 rounded-full overflow-hidden">
+              <div
+                className={`absolute top-0 left-0 h-full ${scheme.bar} transition-all duration-1000 ease-out shadow-lg`}
+                style={{ width: `${item.percentage}%` }}
+              >
+                <div className="absolute inset-0 bg-white/20 animate-pulse"></div>
+              </div>
+            </div>
+          </div>
+        );
+      })
+    ) : (
+      <div className="text-center py-12">
+        <ChartIcon size={48} className="text-gray-600 mx-auto mb-4" />
+        <p className="text-gray-400 text-lg">No votes recorded yet</p>
+      </div>
+    )}
+  </div>
+</div>
         {/* All Other Descriptions */}
         {resultsData?.results?.slice(5).filter(item => item.count > 0).length > 0 && (
           <div className="bg-white/5 backdrop-blur-sm border border-white/10  p-8">
@@ -526,14 +552,14 @@ const PollResults = ({
                         {percentage.toFixed(1)}%
                       </span>
                     </div>
-                    
+
                     <div className="space-y-2">
                       <div className="flex items-center justify-between text-sm">
                         <span className="text-gray-400 font-medium">
                           {item.count.toLocaleString()} votes
                         </span>
                       </div>
-                      
+
                       <div className="relative h-2 bg-black/30 rounded-full overflow-hidden">
                         <div
                           className="absolute top-0 left-0 h-full bg-gradient-to-r from-blue-500 to-purple-500 rounded-full transition-all duration-500 shadow-lg"

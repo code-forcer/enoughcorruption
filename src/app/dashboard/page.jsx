@@ -127,7 +127,7 @@ const UnifiedDashboard = () => {
 
   const handleLogOut = () => {
     localStorage.removeItem("token");
-    window.location.href = "/login";
+    window.location.href = "/";
   };
 
   const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
@@ -443,175 +443,392 @@ const UnifiedDashboard = () => {
     "#8B5CF6",
     "#EC4899",
   ];
-  // Helper function to fix unsupported colors before export
-  const prepareElementForExport = (element) => {
-    const clone = element.cloneNode(true);
-
-    // Find all elements with potentially problematic colors
-    const allElements = clone.querySelectorAll('*');
-    allElements.forEach(el => {
-      const computedStyle = window.getComputedStyle(el);
-
-      // Convert background-color
-      if (computedStyle.backgroundColor && computedStyle.backgroundColor.includes('lab')) {
-        el.style.backgroundColor = '#0f172a'; // Fallback color
-      }
-
-      // Convert color
-      if (computedStyle.color && computedStyle.color.includes('lab')) {
-        el.style.color = '#ffffff'; // Fallback color
-      }
-
-      // Convert border-color
-      if (computedStyle.borderColor && computedStyle.borderColor.includes('lab')) {
-        el.style.borderColor = 'rgba(255, 255, 255, 0.1)';
-      }
-    });
-
-    return clone;
-  };
+const prepareCleanReport = async () => {
+  console.log('prepareCleanReport called');
+  console.log('window.domtoimage:', window.domtoimage);
+  console.log('window.jspdf:', window.jspdf);
   
-  // PDF Export - NO WHITE BORDERS
-const exportToPDF = async () => {
-  try {
-    // Better library detection with longer timeout
-    let attempts = 0;
-    const maxAttempts = 50; // 10 seconds total
+  // Check if libraries are loaded
+  if (!window.domtoimage || !window.jspdf) {
+    console.error('Libraries not loaded');
+    alert('PDF libraries are still loading. Please try again in a moment.');
+    return;
+  }
+  
+  console.log('Libraries loaded successfully');
+  const domtoimage = window.domtoimage;
+  const { jsPDF } = window.jspdf;
 
-    while (attempts < maxAttempts) {
-      if (window.domtoimage && window.jspdf) {
-        break; // Both libraries loaded!
+  // Create a clean container for export
+  const exportContainer = document.createElement('div');
+  exportContainer.id = 'clean-export-container';
+  exportContainer.style.cssText = `
+    position: fixed;
+    top: -10000px;
+    left: -10000px;
+    width: 1400px;
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    padding: 60px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  `;
+
+    // Header Section
+    const header = document.createElement('div');
+    header.style.cssText = `
+      text-align: center;
+      margin-bottom: 50px;
+      padding-bottom: 30px;
+      border-bottom: 3px solid rgba(59, 130, 246, 0.3);
+    `;
+    header.innerHTML = `
+      <h1 style="
+        color: #ffffff;
+        font-size: 48px;
+        font-weight: 900;
+        margin: 0 0 15px 0;
+        letter-spacing: -1px;
+        text-shadow: none;
+        border: none;
+        outline: none;
+      ">📊 Poll Analytics Report</h1>
+      <h2 style="
+        color: #94a3b8;
+        font-size: 28px;
+        font-weight: 600;
+        margin: 0;
+        text-shadow: none;
+        border: none;
+        outline: none;
+      ">${activeQuestion?.text || 'Survey Results'}</h2>
+      <p style="
+        color: #64748b;
+        font-size: 16px;
+        margin: 15px 0 0 0;
+        text-shadow: none;
+        border: none;
+        outline: none;
+      ">Generated on ${new Date().toLocaleDateString('en-US', { 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      })}</p>
+    `;
+    exportContainer.appendChild(header);
+
+    // Key Metrics Section
+    const metricsSection = document.createElement('div');
+    metricsSection.style.cssText = `
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 30px;
+      margin-bottom: 50px;
+    `;
+
+    const metrics = [
+      {
+        icon: '🗳️',
+        label: 'Total Votes',
+        value: dashboardData?.stats?.totalSelections?.toLocaleString() || '0',
+        color: '#3b82f6'
+      },
+      {
+        icon: '🏆',
+        label: 'Top Choice',
+        value: dashboardData?.top5?.[0]?.term || 'N/A',
+        subValue: `${dashboardData?.top5?.[0]?.percentage || 0}%`,
+        color: '#8b5cf6'
+      },
+      {
+        icon: '👥',
+        label: 'Participants',
+        value: dashboardData?.stats?.uniqueVoters?.toLocaleString() || '0',
+        color: '#10b981'
       }
-      await new Promise(resolve => setTimeout(resolve, 200));
-      attempts++;
+    ];
+
+    metrics.forEach(metric => {
+      const card = document.createElement('div');
+      card.style.cssText = `
+        background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+        border: 2px solid rgba(255,255,255,0.1);
+        border-radius: 16px;
+        padding: 30px;
+        text-align: center;
+        box-shadow: none;
+      `;
+      card.innerHTML = `
+        <div style="font-size: 48px; margin-bottom: 15px;">${metric.icon}</div>
+        <p style="
+          color: #94a3b8;
+          font-size: 14px;
+          font-weight: 600;
+          text-transform: uppercase;
+          letter-spacing: 1px;
+          margin: 0 0 10px 0;
+          text-shadow: none;
+          border: none;
+        ">${metric.label}</p>
+        <p style="
+          color: #ffffff;
+          font-size: 36px;
+          font-weight: 900;
+          margin: 0;
+          text-shadow: none;
+          border: none;
+          ${metric.value.length > 20 ? 'font-size: 24px;' : ''}
+        ">${metric.value}</p>
+        ${metric.subValue ? `
+          <p style="
+            color: ${metric.color};
+            font-size: 24px;
+            font-weight: 700;
+            margin: 8px 0 0 0;
+            text-shadow: none;
+            border: none;
+          ">${metric.subValue}</p>
+        ` : ''}
+      `;
+      metricsSection.appendChild(card);
+    });
+    exportContainer.appendChild(metricsSection);
+
+    // Top 5 Rankings Section
+    const rankingsSection = document.createElement('div');
+    rankingsSection.style.cssText = `margin-bottom: 50px;`;
+    
+    const rankingsTitle = document.createElement('h3');
+    rankingsTitle.style.cssText = `
+      color: #ffffff;
+      font-size: 32px;
+      font-weight: 900;
+      margin: 0 0 30px 0;
+      text-shadow: none;
+      border: none;
+      outline: none;
+    `;
+    rankingsTitle.textContent = '🏆 Top 5 Rankings';
+    rankingsSection.appendChild(rankingsTitle);
+
+    const rankingsContainer = document.createElement('div');
+    rankingsContainer.style.cssText = `display: flex; flex-direction: column; gap: 20px;`;
+
+    if (dashboardData?.top5?.length > 0) {
+      dashboardData.top5.forEach((item, i) => {
+        const colors = ['#ef4444', '#f97316', '#eab308', '#22c55e', '#3b82f6'];
+        const color = colors[i];
+        
+        const rankCard = document.createElement('div');
+        rankCard.style.cssText = `
+          background: linear-gradient(90deg, ${color}15 0%, transparent 100%);
+          border: 2px solid ${color}40;
+          border-radius: 12px;
+          padding: 25px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          box-shadow: none;
+        `;
+
+        const leftSection = document.createElement('div');
+        leftSection.style.cssText = `display: flex; align-items: center; gap: 20px; flex: 1;`;
+        leftSection.innerHTML = `
+          <div style="
+            width: 60px;
+            height: 60px;
+            background: ${color}30;
+            border: 3px solid ${color};
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            font-weight: 900;
+            color: #ffffff;
+            flex-shrink: 0;
+            box-shadow: none;
+            text-shadow: none;
+          ">${i + 1}</div>
+          <div style="flex: 1; min-width: 0;">
+            <p style="
+              color: #ffffff;
+              font-size: 24px;
+              font-weight: 700;
+              margin: 0 0 5px 0;
+              text-shadow: none;
+              border: none;
+              word-wrap: break-word;
+            ">${item.term}</p>
+            <p style="
+              color: #94a3b8;
+              font-size: 14px;
+              margin: 0;
+              text-shadow: none;
+              border: none;
+            ">${item.count.toLocaleString()} votes</p>
+          </div>
+        `;
+
+        const rightSection = document.createElement('div');
+        rightSection.style.cssText = `text-align: right; margin-left: 20px;`;
+        rightSection.innerHTML = `
+          <p style="
+            color: ${color};
+            font-size: 42px;
+            font-weight: 900;
+            margin: 0;
+            text-shadow: none;
+            border: none;
+          ">${item.percentage}%</p>
+        `;
+
+        rankCard.appendChild(leftSection);
+        rankCard.appendChild(rightSection);
+        rankingsContainer.appendChild(rankCard);
+      });
     }
 
-    // Debug: Log what we found
-    console.log('domtoimage:', typeof window.domtoimage);
-    console.log('jspdf:', typeof window.jspdf);
+    rankingsSection.appendChild(rankingsContainer);
+    exportContainer.appendChild(rankingsSection);
 
-    if (!window.domtoimage || !window.jspdf) {
-      alert("❌ Libraries failed to load. Please:\n1. Refresh the page\n2. Wait 5 seconds\n3. Try export again");
-      return;
+    // Other Results Section
+    const otherResults = resultsData?.results?.slice(5).filter(item => item.count > 0) || [];
+    if (otherResults.length > 0) {
+      const othersSection = document.createElement('div');
+      
+      const othersTitle = document.createElement('h3');
+      othersTitle.style.cssText = `
+        color: #ffffff;
+        font-size: 32px;
+        font-weight: 900;
+        margin: 0 0 30px 0;
+        text-shadow: none;
+        border: none;
+        outline: none;
+      `;
+      othersTitle.textContent = '📋 Additional Results';
+      othersSection.appendChild(othersTitle);
+
+      const othersGrid = document.createElement('div');
+      othersGrid.style.cssText = `
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+      `;
+
+      otherResults.forEach((item, index) => {
+        const percentage = item.percentageOfSelections || 0;
+        const card = document.createElement('div');
+        card.style.cssText = `
+          background: rgba(255, 255, 255, 0.05);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          border-radius: 12px;
+          padding: 20px;
+          box-shadow: none;
+        `;
+        card.innerHTML = `
+          <p style="
+            color: #ffffff;
+            font-size: 18px;
+            font-weight: 700;
+            margin: 0 0 10px 0;
+            text-shadow: none;
+            border: none;
+            word-wrap: break-word;
+          ">${item.term}</p>
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <p style="
+              color: #94a3b8;
+              font-size: 14px;
+              margin: 0;
+              text-shadow: none;
+              border: none;
+            ">${item.count.toLocaleString()} votes</p>
+            <p style="
+              color: #3b82f6;
+              font-size: 20px;
+              font-weight: 900;
+              margin: 0;
+              text-shadow: none;
+              border: none;
+            ">${percentage.toFixed(1)}%</p>
+          </div>
+        `;
+        othersGrid.appendChild(card);
+      });
+
+      othersSection.appendChild(othersGrid);
+      exportContainer.appendChild(othersSection);
     }
 
-    const element = document.getElementById("results-content");
-    if (!element) {
-      alert("❌ Could not find results to export");
-      return;
-    }
+    // Footer
+    const footer = document.createElement('div');
+    footer.style.cssText = `
+      text-align: center;
+      margin-top: 50px;
+      padding-top: 30px;
+      border-top: 2px solid rgba(255, 255, 255, 0.1);
+    `;
+    footer.innerHTML = `
+      <p style="
+        color: #64748b;
+        font-size: 14px;
+        margin: 0;
+        text-shadow: none;
+        border: none;
+      ">Analytics Dashboard @https://thisisnotnormal.social • ${new Date().getFullYear()}</p>
+    `;
+    exportContainer.appendChild(footer);
 
-    // Show loading
-    const loadingDiv = document.createElement('div');
-    loadingDiv.id = 'pdf-loading';
-    loadingDiv.innerHTML = '<div style="position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,0.9);color:white;padding:20px 40px;border-radius:10px;z-index:9999;font-family:sans-serif;font-size:16px;">Generating PDF...<br/><small>This may take a few seconds</small></div>';
-    document.body.appendChild(loadingDiv);
-
-    // Get element dimensions BEFORE generating image
-    const elementWidth = element.offsetWidth;
-    const elementHeight = element.offsetHeight;
-
-    // Generate image
-    const dataUrl = await window.domtoimage.toPng(element, {
-      quality: 0.95,
+    document.body.appendChild(exportContainer);
+  console.log('Container added');
+  
+  try {
+    // Wait for render
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    console.log('Capturing image...');
+    const dataUrl = await domtoimage.toPng(exportContainer, {
+      quality: 1,
       bgcolor: '#0f172a',
-      width: elementWidth,
-      height: elementHeight,
+      width: 1400,
+      height: exportContainer.scrollHeight
     });
 
-    // Create PDF with EXACT dimensions of the content (no borders!)
-    const { jsPDF } = window.jspdf;
-    const pdf = new jsPDF({
-      orientation: elementWidth > elementHeight ? "landscape" : "portrait",
-      unit: "px",
-      format: [elementWidth, elementHeight], // Custom size = NO WHITE BORDERS
-    });
-
-    // Add image at 0,0 with exact dimensions
-    pdf.addImage(dataUrl, "PNG", 0, 0, elementWidth, elementHeight);
-
-    // Cleanup
-    document.body.removeChild(loadingDiv);
-
-    // Download
-    pdf.save(`poll-results-${Date.now()}.pdf`);
-    alert("✅ PDF downloaded successfully!");
-
+    console.log('Creating PDF...');
+    const imgWidth = 210;
+    const imgHeight = (exportContainer.scrollHeight * imgWidth) / 1400;
+    
+    const pdf = new jsPDF('p', 'mm', 'a4');
+    const pageHeight = 297;
+    
+    let position = 0;
+    pdf.addImage(dataUrl, 'PNG', 0, position, imgWidth, imgHeight);
+    
+    // Handle multiple pages
+    let heightLeft = imgHeight;
+    while (heightLeft > pageHeight) {
+      position = heightLeft - imgHeight;
+      pdf.addPage();
+      pdf.addImage(dataUrl, 'PNG', 0, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
+    }
+    
+    const fileName = `poll-report-${Date.now()}.pdf`;
+    pdf.save(fileName);
+    
+    alert('✅ PDF exported successfully!');
   } catch (error) {
-    console.error("PDF export error:", error);
-    const loadingDiv = document.getElementById('pdf-loading');
-    if (loadingDiv) document.body.removeChild(loadingDiv);
-    alert("❌ Export failed: " + error.message);
+    console.error('PDF Error:', error);
+    alert('❌ Failed to generate PDF: ' + error.message);
+  } finally {
+    if (document.body.contains(exportContainer)) {
+      document.body.removeChild(exportContainer);
+    }
   }
 };
 
-// Image Download - NO WHITE BORDERS
-const downloadAsImage = async () => {
-  try {
-    // Better library detection
-    let attempts = 0;
-    const maxAttempts = 50;
-
-    while (attempts < maxAttempts) {
-      if (window.domtoimage) {
-        break;
-      }
-      await new Promise(resolve => setTimeout(resolve, 200));
-      attempts++;
-    }
-
-    console.log('domtoimage:', typeof window.domtoimage);
-
-    if (!window.domtoimage) {
-      alert("❌ Library failed to load. Please:\n1. Refresh the page\n2. Wait 5 seconds\n3. Try export again");
-      return;
-    }
-
-    const element = document.getElementById("results-content");
-    if (!element) {
-      alert("❌ Could not find results to export");
-      return;
-    }
-
-    // Show loading
-    const loadingDiv = document.createElement('div');
-    loadingDiv.id = 'image-loading';
-    loadingDiv.innerHTML = '<div style="position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,0.9);color:white;padding:20px 40px;border-radius:10px;z-index:9999;font-family:sans-serif;font-size:16px;">Generating Image...<br/><small>This may take a few seconds</small></div>';
-    document.body.appendChild(loadingDiv);
-
-    // Get exact dimensions
-    const elementWidth = element.offsetWidth;
-    const elementHeight = element.offsetHeight;
-
-    // Generate image with exact dimensions
-    const blob = await window.domtoimage.toBlob(element, {
-      quality: 0.95,
-      bgcolor: '#0f172a',
-      width: elementWidth,
-      height: elementHeight,
-    });
-
-    // Download
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `poll-results-${Date.now()}.png`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    window.URL.revokeObjectURL(url);
-
-    // Cleanup
-    document.body.removeChild(loadingDiv);
-    alert("✅ Image downloaded successfully!");
-
-  } catch (error) {
-    console.error("Image export error:", error);
-    const loadingDiv = document.getElementById('image-loading');
-    if (loadingDiv) document.body.removeChild(loadingDiv);
-    alert("❌ Export failed: " + error.message);
-  }
-};
   const shareToSocial = (platform) => {
     const questionText = activeQuestion?.text || "Poll Results";
     const topTerm = dashboardData?.top5?.[0]?.term || "N/A";
@@ -695,7 +912,7 @@ const downloadAsImage = async () => {
           {isGuest && (
             <div className="mb-6 p-4 rounded-lg bg-yellow-500/10 border border-yellow-500/30">
               <p className="text-yellow-300 text-sm">
-                You are viewing as a guest. Login to manage polls.
+                You are viewing and participating as a guest. Login to manage polls.
               </p>
 
               <a
@@ -757,8 +974,7 @@ const downloadAsImage = async () => {
                 isClient={isClient}
                 animationClass={animationClass}
                 exportToCSV={exportToCSV}
-                exportToPDF={exportToPDF}
-                downloadAsImage={downloadAsImage}
+                prepareCleanReport={prepareCleanReport}
                 shareToSocial={shareToSocial}
               />
             )}

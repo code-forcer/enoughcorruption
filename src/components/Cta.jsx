@@ -62,7 +62,7 @@ export default function Cta() {
         </a>
 
         <a
-          href="/login"
+          href="/dashboard"
           className="
             flex items-center justify-center gap-2
             px-6 py-3 text-white
